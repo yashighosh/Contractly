@@ -96,4 +96,21 @@ public class ContractController {
                 .header("Content-Disposition", "attachment; filename=\"contract_" + id + ".pdf\"")
                 .body(pdfBytes);
     }
+
+    @PostMapping("/{id}/clauses/{clauseId}")
+    public ResponseEntity<ApiResponse<ContractResponse>> attachClause(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable Long id,
+            @PathVariable Long clauseId) {
+        ContractResponse response = contractService.attachClause(id, principal.getId(), clauseId);
+        return ResponseEntity.ok(ApiResponse.success("Clause attached successfully", response));
+    }
+
+    @GetMapping("/{id}/clauses")
+    public ResponseEntity<ApiResponse<List<com.contractly.clause.dto.ClauseResponse>>> getClauses(
+            @AuthenticationPrincipal UserPrincipal principal,
+            @PathVariable Long id) {
+        List<com.contractly.clause.dto.ClauseResponse> responses = contractService.getClauses(id, principal.getId());
+        return ResponseEntity.ok(ApiResponse.success(responses));
+    }
 }
