@@ -19,6 +19,7 @@ import java.time.LocalDateTime;
 public class Contract {
     private Long id;
     private Long userId;
+    private Long clientId;
     private Long templateId;
     private String title;
     private String content;
