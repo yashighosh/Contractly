@@ -50,34 +50,65 @@ export function Topbar({ onOpenCommandPalette }) {
           <Menu size={20} />
         </button>
 
-        {/* Search — opens command palette */}
+        {/* Search — wide command-palette style, collapses on mobile */}
         <button
           onClick={onOpenCommandPalette}
           className={cn(
-            'hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl border transition-all duration-150',
-            'bg-bg-secondary border-border-col text-fg-secondary hover:border-[var(--accent-gold)] w-64',
-            searchFocus && 'ring-2 ring-[var(--accent-gold)]/20 w-80 border-[var(--accent-gold)]'
+            'hidden sm:flex items-center gap-2.5 px-3 py-2 rounded-xl border transition-all duration-200',
+            'text-fg-muted hover:text-fg-secondary',
+            'focus:outline-none',
           )}
-          onFocus={() => setSearchFocus(true)}
-          onBlur={() => setSearchFocus(false)}
+          style={{
+            minWidth: 340,
+            maxWidth: 480,
+            flexGrow: 1,
+            height: 38,
+            background: 'rgba(255,255,255,0.06)',
+            border: '0.5px solid rgba(255,255,255,0.1)',
+            borderRadius: 10,
+          }}
+          onMouseEnter={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'}
+          onMouseLeave={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'}
+          onFocus={e => e.currentTarget.style.borderColor = 'rgba(201,168,76,0.4)'}
+          onBlur={e => e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)'}
         >
-          <Search size={15} className="shrink-0 opacity-50" />
-          <span className="text-sm flex-1 text-left opacity-60">Search contracts, clients…</span>
-          <kbd className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-xs text-fg-secondary bg-bg-page rounded border border-border-col font-mono">
-            <Command size={10} />K
+          <Search size={15} style={{ color: '#4A5A72', flexShrink: 0 }} />
+          <span className="text-sm flex-1 text-left" style={{ color: '#4A5A72' }}>
+            Search contracts, clients...
+          </span>
+          <kbd style={{
+            background: 'rgba(255,255,255,0.06)',
+            border: '0.5px solid rgba(255,255,255,0.1)',
+            borderRadius: 5,
+            fontSize: 11,
+            color: '#4A5A72',
+            padding: '2px 6px',
+            fontFamily: 'var(--font-mono)',
+            lineHeight: 1.5,
+            flexShrink: 0,
+          }}>
+            ⌘K
           </kbd>
+        </button>
+
+        {/* Mobile: icon-only search button */}
+        <button
+          onClick={onOpenCommandPalette}
+          className="sm:hidden p-2 rounded-lg text-fg-secondary hover:bg-bg-secondary transition-colors"
+        >
+          <Search size={18} />
         </button>
       </div>
 
       {/* Right cluster */}
-      <div className="flex items-center gap-1.5">
+      <div className="flex items-center gap-1">
         {/* New Contract */}
         <Button
           variant="primary"
           size="sm"
           icon={<Plus size={15} />}
           onClick={() => navigate('/contracts/new')}
-          className="hidden sm:inline-flex !bg-[var(--accent-gold)] !text-brand-navy-900 hover:!bg-brand-gold-300 font-semibold"
+          className="hidden sm:inline-flex font-semibold"
         >
           New Contract
         </Button>
@@ -85,7 +116,10 @@ export function Topbar({ onOpenCommandPalette }) {
         {/* Theme toggle */}
         <button
           onClick={toggleTheme}
-          className="p-2 rounded-xl text-fg-secondary hover:bg-bg-secondary transition-colors overflow-hidden"
+          className="p-2 rounded-xl transition-colors overflow-hidden"
+          style={{ color: '#8896AD' }}
+          onMouseEnter={e => { e.currentTarget.style.color='#EDF0F7'; e.currentTarget.style.background='rgba(255,255,255,0.06)'; }}
+          onMouseLeave={e => { e.currentTarget.style.color='#8896AD'; e.currentTarget.style.background='transparent'; }}
           title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
         >
           <AnimatePresence mode="wait" initial={false}>
@@ -114,21 +148,32 @@ export function Topbar({ onOpenCommandPalette }) {
         </button>
 
         {/* Notifications */}
-        <button className="relative p-2 rounded-xl text-fg-secondary hover:bg-bg-secondary transition-colors">
+        <button
+          className="relative p-2 rounded-xl transition-colors"
+          style={{ color: '#8896AD' }}
+          onMouseEnter={e => { e.currentTarget.style.color='#EDF0F7'; e.currentTarget.style.background='rgba(255,255,255,0.06)'; }}
+          onMouseLeave={e => { e.currentTarget.style.color='#8896AD'; e.currentTarget.style.background='transparent'; }}
+        >
           <Bell size={18} />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[var(--accent-gold)] rounded-full animate-pulse" />
+          {/* Gold notification dot */}
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style={{ background: 'var(--accent-gold)' }} />
         </button>
 
         {/* User menu */}
         <Dropdown
           align="right"
           trigger={
-            <button className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-xl hover:bg-bg-secondary transition-colors">
+            <button
+              className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-xl transition-colors"
+              style={{ background: '#172035', border: '0.5px solid #1E2D45' }}
+              onMouseEnter={e => e.currentTarget.style.borderColor='rgba(201,168,76,0.3)'}
+              onMouseLeave={e => e.currentTarget.style.borderColor='#1E2D45'}
+            >
               <Avatar name={user?.name || 'User'} src={user?.avatar} size="sm" />
-              <span className="hidden md:block text-sm font-medium text-fg-primary max-w-[100px] truncate">
+              <span className="hidden md:block text-sm font-medium max-w-[100px] truncate" style={{ color: '#EDF0F7' }}>
                 {user?.name || 'User'}
               </span>
-              <ChevronDown size={14} className="text-fg-secondary" />
+              <ChevronDown size={14} style={{ color: '#8896AD' }} />
             </button>
           }
           items={userMenuItems}

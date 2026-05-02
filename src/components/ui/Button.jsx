@@ -2,12 +2,12 @@ import { cn } from '../../utils/cn';
 import { Loader2 } from 'lucide-react';
 
 const variants = {
-  primary:   'bg-brand-500 text-white hover:bg-brand-600 shadow-sm hover:shadow-md active:scale-[0.98]',
-  secondary: 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50 hover:border-gray-300 shadow-sm',
-  ghost:     'text-gray-600 hover:bg-gray-100 hover:text-gray-900',
+  primary:   'bg-[var(--accent-gold)] text-brand-navy-900 hover:brightness-110 shadow-gold active:scale-[0.98]',
+  secondary: 'bg-bg-secondary text-fg-primary border border-border-col hover:bg-bg-tertiary hover:border-[var(--border-strong)] shadow-card',
+  ghost:     'text-fg-secondary hover:bg-bg-secondary hover:text-fg-primary',
   danger:    'bg-red-500 text-white hover:bg-red-600 shadow-sm',
-  link:      'text-brand-500 hover:text-brand-700 underline-offset-4 hover:underline p-0 h-auto',
-  indigo:    'bg-brand-500 text-white hover:bg-brand-600 shadow-md hover:shadow-lg active:scale-[0.98]',
+  link:      'text-[var(--accent-gold)] hover:brightness-110 underline-offset-4 hover:underline p-0 h-auto',
+  indigo:    'bg-brand2-500 text-white hover:bg-brand2-600 shadow-md hover:shadow-lg active:scale-[0.98]',
 };
 
 const sizes = {
@@ -33,7 +33,7 @@ export function Button({
     <button
       className={cn(
         'inline-flex items-center justify-center font-medium transition-all duration-150 select-none',
-        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent-gold)]/50 focus-visible:ring-offset-2',
         'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none',
         variants[variant],
         sizes[size],

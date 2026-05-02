@@ -97,7 +97,7 @@ export default function Templates() {
                 whileHover={{ y: -2 }}
                 transition={{ duration: 0.15 }}
               >
-                <div className="group relative bg-bg-primary border border-border-col rounded-xl p-5 hover:shadow-card-lg transition-shadow cursor-pointer">
+                <div className="group relative bg-bg-primary border border-border-col rounded-xl p-5 hover:shadow-card-lg hover:border-[rgba(201,168,76,0.35)] dark:hover:border-[rgba(201,168,76,0.35)] transition-all duration-200 cursor-pointer">
                   {t.type === 'system' && (
                     <span className="absolute top-4 right-4 flex items-center gap-1 text-xs font-medium rounded-full px-2 py-0.5"
                       style={{ background: 'var(--accent-gold-lt)', color: 'var(--accent-gold)' }}>

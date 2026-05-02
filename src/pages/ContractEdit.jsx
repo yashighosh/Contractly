@@ -37,7 +37,10 @@ function ToolbarButton({ active, onClick, title, children }) {
   return (
     <button type="button" onClick={onClick} title={title}
       className={cn('p-1.5 rounded-md text-sm transition-colors',
-        active ? 'bg-brand-100 text-brand-600' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900')}>
+        active
+          ? 'text-[var(--accent-gold)] bg-[rgba(201,168,76,0.1)]'
+          : 'text-fg-secondary hover:bg-bg-tertiary hover:text-fg-primary'
+      )}>
       {children}
     </button>
   );
@@ -167,16 +170,17 @@ export default function ContractEdit() {
                 <div className="ProseMirror" dangerouslySetInnerHTML={{ __html: getPreviewContent() }} />
               </div>
             ) : (
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8 min-h-[600px]">
+              <div className="editor-surface rounded-xl border border-border-col shadow-sm p-8 min-h-[600px]">
                 {editor && (
-                  <div className="flex items-center gap-0.5 mb-4 pb-3 border-b border-gray-100 flex-wrap">
+                  <div className="flex items-center gap-0.5 mb-4 pb-3 border-b border-border-col flex-wrap"
+                    style={{ background: 'var(--bg-secondary)', margin: '-2rem -2rem 1rem', padding: '0.75rem 1.5rem', borderRadius: '12px 12px 0 0' }}>
                     <ToolbarButton active={editor.isActive('bold')} onClick={() => editor.chain().focus().toggleBold().run()} title="Bold"><Bold size={14} /></ToolbarButton>
                     <ToolbarButton active={editor.isActive('italic')} onClick={() => editor.chain().focus().toggleItalic().run()} title="Italic"><Italic size={14} /></ToolbarButton>
                     <ToolbarButton active={editor.isActive('underline')} onClick={() => editor.chain().focus().toggleUnderline().run()} title="Underline"><UnderlineIcon size={14} /></ToolbarButton>
-                    <div className="w-px h-4 bg-gray-200 mx-0.5" />
+                    <div className="w-px h-4 bg-border-col mx-0.5" />
                     <ToolbarButton active={editor.isActive('heading', { level: 1 })} onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} title="H1"><Heading1 size={14} /></ToolbarButton>
                     <ToolbarButton active={editor.isActive('heading', { level: 2 })} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} title="H2"><Heading2 size={14} /></ToolbarButton>
-                    <div className="w-px h-4 bg-gray-200 mx-0.5" />
+                    <div className="w-px h-4 bg-border-col mx-0.5" />
                     <ToolbarButton active={editor.isActive('bulletList')} onClick={() => editor.chain().focus().toggleBulletList().run()} title="Bullet list"><List size={14} /></ToolbarButton>
                     <ToolbarButton active={editor.isActive('orderedList')} onClick={() => editor.chain().focus().toggleOrderedList().run()} title="Numbered list"><ListOrdered size={14} /></ToolbarButton>
                     <ToolbarButton active={false} onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Divider"><Minus size={14} /></ToolbarButton>

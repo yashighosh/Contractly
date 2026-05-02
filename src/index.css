@@ -183,8 +183,32 @@ pre {
 }
 
 .dark .ProseMirror {
-  background-color: #1A2A40;
+  background-color: #1C2333;
   color: #E2E8F0;
+  caret-color: #C9A84C;
+}
+
+.dark .ProseMirror h1,
+.dark .ProseMirror h2,
+.dark .ProseMirror h3 { color: #EDF0F7; }
+
+.dark .ProseMirror p { color: #C8D3E0; }
+.dark .ProseMirror hr { border-color: #1E2D45; }
+
+/* Editor surface — intentional paper effect */
+.editor-surface {
+  background: #FAFAF8;
+  color: #1A202C;
+}
+.dark .editor-surface {
+  background: #1C2333;
+  color: #E2E8F0;
+}
+
+/* Contract preview — always light (real document paper) */
+[data-theme="light"] {
+  background: #FAFAF8 !important;
+  color: #1A202C !important;
 }
 
 .ProseMirror p.is-editor-empty:first-child::before {
