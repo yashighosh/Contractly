@@ -72,16 +72,21 @@ function AuthInput({ label, type='text', placeholder, icon:Icon, right, value, o
 }
 
 export default function Login() {
-  const navigate = useNavigate();
-  const login    = useAuthStore((s) => s.login);
-  const [form, setForm]   = useState({ email:'', password:'' });
+  const navigate        = useNavigate();
+  const login           = useAuthStore((s) => s.login);
+  const loginWithDemo   = useAuthStore((s) => s.loginWithDemo);
+  const [form, setForm] = useState({ email:'', password:'' });
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError]   = useState('');
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
-  const fillDemo = () => setForm({ email: 'yashi@contractly.in', password: 'demo123' });
+  // Demo login — NO API call, instant access
+  const handleDemoLogin = () => {
+    loginWithDemo();
+    navigate('/dashboard');
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -90,8 +95,19 @@ export default function Login() {
     try {
       await login(form);
       navigate('/dashboard');
-    } catch(err) {
-      setError(err.message || 'Invalid email or password');
+    } catch (err) {
+      // Clean, user-friendly error messages
+      if (!err.response) {
+        setError('Network Error');
+      } else if (err.response?.status === 401) {
+        setError('Incorrect email or password.');
+      } else if (err.response?.status === 404) {
+        setError('No account found with this email.');
+      } else if (err.response?.status >= 500) {
+        setError('Server error. Please try again in a moment.');
+      } else {
+        setError(err.response?.data?.message || err.message || 'Sign in failed.');
+      }
     } finally {
       setLoading(false);
     }
@@ -114,22 +130,44 @@ export default function Login() {
           <h1 style={{ fontFamily:'Lora,Georgia,serif', fontSize:28, fontWeight:600, color:C.tp, margin:'0 0 6px' }}>Welcome back</h1>
           <p style={{ fontFamily:'DM Sans,sans-serif', fontSize:14, color:C.ts, margin:'0 0 28px' }}>Sign in to your Contractly account</p>
 
-          {error && (
-            <div style={{ background:'rgba(239,68,68,0.1)', border:'0.5px solid rgba(239,68,68,0.3)', borderRadius:8, padding:'10px 14px', marginBottom:16, fontFamily:'DM Sans,sans-serif', fontSize:13, color:'#F87171' }}>{error}</div>
-          )}
-
-          {/* Demo account quick-fill */}
-          <button type="button" onClick={fillDemo} style={{
-            width:'100%', marginBottom:16, padding:'10px 14px',
-            background:'rgba(201,168,76,0.08)', border:'0.5px solid rgba(201,168,76,0.35)',
-            borderRadius:10, cursor:'pointer', textAlign:'left',
-            display:'flex', alignItems:'center', justifyContent:'space-between', gap:8,
-          }}>
-            <span style={{ fontFamily:'DM Sans,sans-serif', fontSize:12, color:'#8896AD' }}>
-              🎯 <strong style={{ color:'#C9A84C' }}>Demo account</strong> — click to fill
+          {/* Demo button — prominent, instant access, no API */}
+          <button type="button" onClick={handleDemoLogin} style={{
+            width:'100%', marginBottom:16, padding:'11px 14px',
+            background:'rgba(201,168,76,0.08)', border:'1.5px solid rgba(201,168,76,0.4)',
+            borderRadius:10, cursor:'pointer',
+            display:'flex', alignItems:'center', gap:8,
+            transition:'all 0.2s',
+          }}
+            onMouseEnter={e => e.currentTarget.style.background='rgba(201,168,76,0.15)'}
+            onMouseLeave={e => e.currentTarget.style.background='rgba(201,168,76,0.08)'}
+          >
+            <span style={{ fontSize:15 }}>🎯</span>
+            <span style={{ fontFamily:'DM Sans,sans-serif', fontSize:13, fontWeight:500, color:'#E2C87A', flex:1 }}>
+              Demo account — instant access
             </span>
             <span style={{ fontFamily:'monospace', fontSize:11, color:'#4A5A72' }}>yashi@contractly.in</span>
           </button>
+
+          {/* Error banner — friendly messages, never raw 'Network Error' */}
+          {error && (
+            <div style={{
+              background:'rgba(220,38,38,0.1)', border:'0.5px solid rgba(220,38,38,0.3)',
+              borderRadius:10, padding:'12px 16px', marginBottom:16,
+              display:'flex', alignItems:'flex-start', gap:10,
+            }}>
+              <span style={{ fontSize:16, flexShrink:0 }}>⚠️</span>
+              <div>
+                <p style={{ fontFamily:'DM Sans,sans-serif', fontSize:13, fontWeight:500, color:'#FCA5A5', margin:'0 0 2px' }}>
+                  {error === 'Network Error' ? 'Cannot connect to server' : 'Sign in failed'}
+                </p>
+                <p style={{ fontFamily:'DM Sans,sans-serif', fontSize:12, color:'#F87171', margin:0, opacity:0.85 }}>
+                  {error === 'Network Error'
+                    ? 'Backend is not running. Use the Demo Account button above to explore the app.'
+                    : error}
+                </p>
+              </div>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit}>
             <AuthInput label="Email address" type="email" placeholder="you@example.com" icon={Mail} value={form.email} onChange={set('email')} />
