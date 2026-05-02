@@ -11,7 +11,8 @@ import { Card } from '../components/ui/Card';
 import { StatusBadge } from '../components/ui/StatusBadge';
 import { formatCurrency, formatDate, formatDateTime, formatRelativeTime } from '../utils/formatters';
 import { useAuthStore } from '../store/authStore';
-import { useDataStore } from '../store/dataStore';
+import { useQuery } from '@tanstack/react-query';
+import { contractService } from '../services/contractService';
 
 const pageVariants = { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0, transition: { duration: 0.25 } } };
 
@@ -19,11 +20,20 @@ export default function ContractView() {
   const navigate     = useNavigate();
   const { id }       = useParams();
   const { user }     = useAuthStore();
-  const userId       = user?.id;
-  const getContracts = useDataStore((s) => s.getContracts);
-  const updateContract = useDataStore((s) => s.updateContract);
 
-  const c = getContracts(userId).find((contract) => contract.id === id);
+  const { data: c, isLoading } = useQuery({
+    queryKey: ['contract', id],
+    queryFn: () => contractService.getById(id)
+  });
+
+  const { data: auditLogRaw = [] } = useQuery({
+    queryKey: ['contractAudit', id],
+    queryFn: () => contractService.getAuditLog(id)
+  });
+
+  if (isLoading) {
+    return <div className="p-8 text-center text-fg-secondary">Loading contract details...</div>;
+  }
 
   if (!c) {
     return (
@@ -38,15 +48,18 @@ export default function ContractView() {
 
   // Build timeline from real contract timestamps
   const timeline = [
-    c.signedAt && { icon: CheckCircle, color: 'text-green-500', label: 'Contract Signed',  sub: c.client, time: formatDateTime(c.signedAt) },
-    c.viewedAt && { icon: Eye,         color: 'text-amber-500', label: 'Contract Viewed',  sub: c.client, time: formatDateTime(c.viewedAt) },
+    c.signedAt && { icon: CheckCircle, color: 'text-green-500', label: 'Contract Signed',  sub: c.recipientName, time: formatDateTime(c.signedAt) },
+    c.viewedAt && { icon: Eye,         color: 'text-amber-500', label: 'Contract Viewed',  sub: c.recipientName, time: formatDateTime(c.viewedAt) },
     c.sentAt   && { icon: Send,        color: 'text-blue-500',  label: 'Contract Sent',    sub: user?.email || '', time: formatDateTime(c.sentAt) },
     c.createdAt && { icon: FileText,   color: 'text-gray-400',  label: 'Contract Created', sub: user?.email || '', time: formatDateTime(c.createdAt) },
   ].filter(Boolean);
 
   // Audit log from timeline
-  const auditLog = timeline.map((t) => ({
-    time: t.time, action: t.label.split(' ')[1].toUpperCase(), actor: t.sub, ip: '—'
+  const auditLog = auditLogRaw.map((a) => ({
+    time: formatDateTime(a.createdAt),
+    action: a.action.toUpperCase(),
+    actor: a.metadata ? JSON.parse(a.metadata).actor || 'System' : 'System',
+    ip: a.ipAddress || '—'
   }));
 
   return (
@@ -139,7 +152,7 @@ export default function ContractView() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-gray-500">Client</span>
-                  <span className="text-sm font-medium text-gray-900">{c.client || '—'}</span>
+                  <span className="text-sm font-medium text-gray-900">{c.recipientName || '—'}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-gray-500">Value</span>

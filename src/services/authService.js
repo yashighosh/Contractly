@@ -1,9 +1,8 @@
 import api from './api';
 
 export const authService = {
-  login:    (data)  => api.post('/auth/login', data),
-  register: (data)  => api.post('/auth/register', data),
-  me:       ()      => api.get('/auth/me'),
-  logout:   ()      => api.post('/auth/logout'),
-  googleAuth: ()    => api.get('/auth/google'),
+  login:    (data)  => api.post('/v1/auth/login', data).then(res => res.data.data),
+  register: (data)  => api.post('/v1/auth/signup', data).then(res => res.data.data),
+  me:       ()      => api.get('/v1/auth/me').then(res => res.data.data),
+  logout:   ()      => api.post('/v1/auth/logout'),
 };

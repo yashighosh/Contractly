@@ -7,6 +7,8 @@ import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { EmptyState } from '../components/ui/EmptyState';
 import { cn } from '../utils/cn';
+import { useQuery } from '@tanstack/react-query';
+import { templateService } from '../services/templateService';
 
 const TABS = ['All', 'My Templates', 'Contractly Templates'];
 
@@ -20,12 +22,20 @@ const MOCK_TEMPLATES = [
   { id: '7', name: 'Content Writing Agreement',  lastUsed: '5 days ago',  type: 'my',     clauses: 5 },
 ];
 
+
 export default function Templates() {
   const navigate = useNavigate();
   const [tab, setTab]     = useState('All');
   const [search, setSearch] = useState('');
 
-  const filtered = MOCK_TEMPLATES.filter((t) => {
+  const { data: templates = [], isLoading } = useQuery({
+    queryKey: ['templates'],
+    queryFn: () => templateService.getAll()
+  });
+
+  const allTemplates = [...templates, ...MOCK_TEMPLATES];
+
+  const filtered = allTemplates.filter((t) => {
     const matchTab =
       tab === 'All'                  ? true :
       tab === 'My Templates'         ? t.type === 'my' :
@@ -81,7 +91,9 @@ export default function Templates() {
         </div>
 
         {/* Grid */}
-        {filtered.length === 0 ? (
+        {isLoading ? (
+          <div className="p-8 text-center text-fg-secondary">Loading templates...</div>
+        ) : filtered.length === 0 ? (
           <EmptyState
             title="No templates found"
             description="Create your first template or browse Contractly's default library"

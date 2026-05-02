@@ -17,7 +17,9 @@ import { StatusBadge } from '../components/ui/StatusBadge';
 import { TimelineUI } from '../components/ui/TimelineUI';
 import { formatCurrency, formatRelativeTime } from '../utils/formatters';
 import { useAuthStore } from '../store/authStore';
-import { useDataStore } from '../store/dataStore';
+import { useQuery } from '@tanstack/react-query';
+import { contractService } from '../services/contractService';
+import { dashboardService } from '../services/dashboardService';
 
 /* ── Animated counter ── */
 function useCountUp(target, duration = 700) {
@@ -111,8 +113,22 @@ export default function Dashboard() {
   const navigate  = useNavigate();
   const userId    = user?.id;
 
-  const contracts  = useDataStore((s) => s.users[userId]?.contracts ?? EMPTY_ARR);
-  const activity   = useDataStore((s) => s.users[userId]?.activity  ?? EMPTY_ARR);
+  const { data: contracts = [] } = useQuery({
+    queryKey: ['contracts'],
+    queryFn: () => contractService.getAll()
+  });
+
+  const { data: activityRaw = [] } = useQuery({
+    queryKey: ['dashboardActivity'],
+    queryFn: () => dashboardService.getRecent(10)
+  });
+
+  const activity = activityRaw.map(a => ({
+    label: String(a.action).replace(/_/g, ' '),
+    action: String(a.action).toLowerCase(),
+    timestamp: a.createdAt,
+    sub: `Contract ID: ${a.contractId}`
+  }));
 
   const hour     = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';

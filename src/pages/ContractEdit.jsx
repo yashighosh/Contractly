@@ -20,7 +20,8 @@ import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
 import { cn } from '../utils/cn';
 import { useAuthStore } from '../store/authStore';
-import { useDataStore } from '../store/dataStore';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { contractService } from '../services/contractService';
 
 const pageVariants = { initial: { opacity: 0 }, animate: { opacity: 1, transition: { duration: 0.2 } } };
 
@@ -51,17 +52,20 @@ export default function ContractEdit() {
   const { id }         = useParams();
   const { user }       = useAuthStore();
   const userId         = user?.id;
-  const getContracts   = useDataStore((s) => s.getContracts);
-  const updateContract = useDataStore((s) => s.updateContract);
 
-  const contract = getContracts(userId).find((c) => c.id === id);
+  const { data: contract, isLoading } = useQuery({
+    queryKey: ['contract', id],
+    queryFn: () => contractService.getById(id),
+  });
 
-  const [title, setTitle]           = useState(contract?.title || 'Untitled Contract');
+  const queryClient = useQueryClient();
+
+  const [title, setTitle]           = useState('Untitled Contract');
   const [editingTitle, setET]       = useState(false);
-  const [varValues, setVarValues]   = useState(contract?.variables || {});
+  const [varValues, setVarValues]   = useState({});
   const [showSendModal, setSendM]   = useState(false);
   const [showPreview, setPreview]   = useState(false);
-  const [sendData, setSendData]     = useState({ email: contract?.client || '', subject: 'Your contract is ready to sign', message: '', expiryDays: 7 });
+  const [sendData, setSendData]     = useState({ email: '', subject: 'Your contract is ready to sign', message: '', expiryDays: 7 });
   const [isSaving, setIsSaving]     = useState(false);
   const [savedStatus, setSaved]     = useState('');
   const [showVarsPanel, setVarsP]   = useState(true);
@@ -74,11 +78,26 @@ export default function ContractEdit() {
       Link.configure({ openOnClick: false }),
       Highlight,
     ],
-    content: contract?.content || '<p></p>',
+    content: '<p></p>',
     editorProps: { attributes: { class: 'ProseMirror focus:outline-none' } },
   });
 
-  // Not found
+  useEffect(() => {
+    if (contract && editor) {
+      setTitle(contract.title || 'Untitled Contract');
+      try {
+        setVarValues(contract.variablesData ? JSON.parse(contract.variablesData) : {});
+      } catch (e) {
+        setVarValues({});
+      }
+      editor.commands.setContent(contract.content || '');
+      setSendData(prev => ({ ...prev, email: contract.recipientEmail || '' }));
+    }
+  }, [contract, editor]);
+
+  if (isLoading) {
+    return <div className="p-8 text-center text-fg-secondary">Loading contract...</div>;
+  }
   if (!contract) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
@@ -90,31 +109,44 @@ export default function ContractEdit() {
     );
   }
 
-  const getPayload = (status) => ({
+  const getPayload = () => ({
     title,
-    status: status || contract.status,
     content: editor?.getHTML() || '',
-    client:  varValues.client_name || sendData.email || contract.client || '',
-    amount:  varValues.amount ? String(varValues.amount).replace(/[^0-9.]/g, '') : contract.amount || '',
-    variables: varValues,
+    recipientName: varValues.client_name || sendData.email || contract.recipientName || '',
+    recipientEmail: sendData.email || contract.recipientEmail || '',
+    amount: varValues.amount ? Number(String(varValues.amount).replace(/[^0-9.]/g, '')) : contract.amount,
+    variablesData: JSON.stringify(varValues),
   });
 
   const handleSaveDraft = async () => {
     setIsSaving(true);
-    await new Promise((r) => setTimeout(r, 400));
-    updateContract(userId, id, getPayload('draft'));
-    setIsSaving(false);
-    setSaved('saved');
-    setTimeout(() => setSaved(''), 3000);
-    toast.success('Draft saved');
+    try {
+      await contractService.update(id, getPayload());
+      queryClient.invalidateQueries({ queryKey: ['contracts'] });
+      queryClient.invalidateQueries({ queryKey: ['contract', id] });
+      setSaved('saved');
+      setTimeout(() => setSaved(''), 3000);
+      toast.success('Draft saved');
+    } catch (e) {
+      toast.error('Failed to save draft');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleSend = async () => {
     if (!sendData.email) { toast.error('Enter client email'); return; }
-    updateContract(userId, id, { ...getPayload('sent'), client: sendData.email, sentAt: new Date().toISOString() });
-    toast.success(`Contract sent to ${sendData.email}!`);
-    setSendM(false);
-    navigate('/contracts');
+    try {
+      await contractService.update(id, getPayload());
+      await contractService.send(id);
+      queryClient.invalidateQueries({ queryKey: ['contracts'] });
+      queryClient.invalidateQueries({ queryKey: ['contract', id] });
+      toast.success(`Contract sent to ${sendData.email}!`);
+      setSendM(false);
+      navigate('/contracts');
+    } catch (e) {
+      toast.error('Failed to send contract');
+    }
   };
 
   const insertVariable = (key) =>

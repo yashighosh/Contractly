@@ -1,17 +1,19 @@
 import api from './api';
 
 export const contractService = {
-  getAll:      (params)      => api.get('/contracts', { params }),
-  getById:     (id)          => api.get(`/contracts/${id}`),
-  create:      (data)        => api.post('/contracts', data),
-  update:      (id, data)    => api.put(`/contracts/${id}`, data),
-  delete:      (id)          => api.delete(`/contracts/${id}`),
-  send:        (id, payload) => api.post(`/contracts/${id}/send`, payload),
-  remind:      (id)          => api.post(`/contracts/${id}/remind`),
-  getSignUrl:  (token)       => api.get(`/contracts/sign/${token}`),
-  sign:        (token, sig)  => api.post(`/contracts/sign/${token}`, sig),
-  download:    (id)          => api.get(`/contracts/${id}/pdf`, { responseType: 'blob' }),
-  renew:       (id)          => api.post(`/contracts/${id}/renew`),
-  duplicate:   (id)          => api.post(`/contracts/${id}/duplicate`),
-  getAuditLog: (id)          => api.get(`/contracts/${id}/audit`),
+  getAll:      (params)      => api.get('/v1/contracts', { params }).then(r => r.data.data),
+  getById:     (id)          => api.get(`/v1/contracts/${id}`).then(r => r.data.data),
+  create:      (data)        => api.post('/v1/contracts', data).then(r => r.data.data),
+  update:      (id, data)    => api.put(`/v1/contracts/${id}`, data).then(r => r.data.data),
+  delete:      (id)          => api.delete(`/v1/contracts/${id}`).then(r => r.data.data),
+  send:        (id, payload) => api.post(`/v1/contracts/${id}/send`, payload).then(r => r.data.data),
+  duplicate:   (id)          => api.post(`/v1/contracts/${id}/duplicate`).then(r => r.data.data),
+  download:    (id)          => api.get(`/v1/contracts/${id}/pdf`, { responseType: 'blob' }),
+  
+  // Audits
+  getAuditLog: (id)          => api.get(`/v1/audit/contracts/${id}`).then(r => r.data.data),
+
+  // Signatures
+  getSignUrl:  (token)       => api.get(`/v1/sign/${token}`).then(r => r.data.data),
+  sign:        (token, sig)  => api.post(`/v1/sign/${token}`, sig).then(r => r.data.data),
 };

@@ -10,12 +10,11 @@ import { StatusBadge } from '../components/ui/StatusBadge';
 import { ContractCard } from '../components/ui/ContractCard';
 import { Dropdown } from '../components/ui/Dropdown';
 import { formatCurrency, formatRelativeTime } from '../utils/formatters';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import toast from 'react-hot-toast';
+import { contractService } from '../services/contractService';
 import { useAuthStore } from '../store/authStore';
-import { useDataStore } from '../store/dataStore';
 import { cn } from '../utils/cn';
-
-/* Stable fallback — never inline `?? []` in a Zustand selector */
-const EMPTY_ARR = [];
 
 const STATUSES = ['all', 'draft', 'sent', 'viewed', 'signed', 'expired'];
 
@@ -44,11 +43,21 @@ function EmptyContracts({ onNew, filtered }) {
 
 export default function Contracts() {
   const navigate  = useNavigate();
-  const { user }  = useAuthStore();
-  const userId    = user?.id;
+  const queryClient = useQueryClient();
 
-  const contracts      = useDataStore((s) => s.users[userId]?.contracts ?? EMPTY_ARR);
-  const deleteContract = useDataStore((s) => s.deleteContract);
+  const { data: contracts = [], isLoading } = useQuery({
+    queryKey: ['contracts'],
+    queryFn: () => contractService.getAll()
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => contractService.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contracts'] });
+      toast.success('Contract deleted');
+    },
+    onError: () => toast.error('Failed to delete contract'),
+  });
 
   const [search, setSearch]     = useState('');
   const [status, setStatus]     = useState('all');
@@ -67,7 +76,7 @@ export default function Contracts() {
     setSelected((prev) => prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]);
 
   const handleDelete = (id) => {
-    deleteContract(userId, id);
+    deleteMutation.mutate(id);
     setSelected((prev) => prev.filter((x) => x !== id));
   };
 
@@ -124,7 +133,7 @@ export default function Contracts() {
           {selected.length > 0 && (
             <div className="flex items-center gap-3 mt-3 pt-3 border-t border-border-col">
               <span className="text-sm text-fg-secondary">{selected.length} selected</span>
-              <button onClick={() => { selected.forEach((id) => deleteContract(userId, id)); setSelected([]); }}
+              <button onClick={() => { selected.forEach((id) => deleteMutation.mutate(id)); setSelected([]); }}
                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-red-50 dark:bg-red-900/20 text-red-600 rounded-lg border border-red-200 dark:border-red-800">
                 <Trash2 size={12} /> Delete selected
               </button>
@@ -136,7 +145,9 @@ export default function Contracts() {
         {/* List view */}
         {viewMode === 'list' && (
           <div className="bg-bg-primary border border-border-col rounded-xl overflow-hidden">
-            {filtered.length === 0 ? (
+            {isLoading ? (
+              <div className="p-8 text-center text-fg-secondary">Loading contracts...</div>
+            ) : filtered.length === 0 ? (
               <EmptyContracts onNew={() => navigate('/contracts/new')} filtered={search || status !== 'all'} />
             ) : (
               <div className="overflow-x-auto">
@@ -187,7 +198,9 @@ export default function Contracts() {
         {/* Grid view */}
         {viewMode === 'grid' && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.length === 0 ? (
+            {isLoading ? (
+              <div className="col-span-full p-8 text-center text-fg-secondary">Loading contracts...</div>
+            ) : filtered.length === 0 ? (
               <div className="col-span-full">
                 <EmptyContracts onNew={() => navigate('/contracts/new')} filtered={search || status !== 'all'} />
               </div>
