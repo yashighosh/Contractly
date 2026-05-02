@@ -36,6 +36,9 @@ public class ContractRepository {
         long templateId = rs.getLong("template_id");
         c.setTemplateId(rs.wasNull() ? null : templateId);
 
+        long clientId = rs.getLong("client_id");
+        c.setClientId(rs.wasNull() ? null : clientId);
+
         c.setTitle(rs.getString("title"));
         c.setContent(rs.getString("content"));
         c.setVariablesData(rs.getString("variables_data"));
@@ -76,10 +79,10 @@ public class ContractRepository {
      */
     public Contract save(Contract contract) {
         String sql = """
-                INSERT INTO contracts (user_id, template_id, title, content, variables_data, status,
+                INSERT INTO contracts (user_id, template_id, client_id, title, content, variables_data, status,
                     recipient_name, recipient_email, amount, currency, start_date, end_date,
                     is_recurring, renewal_period_days, auto_renew)
-                VALUES (:userId, :templateId, :title, :content, :variablesData, :status,
+                VALUES (:userId, :templateId, :clientId, :title, :content, :variablesData, :status,
                     :recipientName, :recipientEmail, :amount, :currency, :startDate, :endDate,
                     :isRecurring, :renewalPeriodDays, :autoRenew)
                 """;
@@ -99,7 +102,7 @@ public class ContractRepository {
         String sql = """
                 UPDATE contracts
                 SET title = :title, content = :content, variables_data = :variablesData,
-                    recipient_name = :recipientName, recipient_email = :recipientEmail,
+                    client_id = :clientId, recipient_name = :recipientName, recipient_email = :recipientEmail,
                     amount = :amount, currency = :currency, start_date = :startDate, end_date = :endDate,
                     is_recurring = :isRecurring, renewal_period_days = :renewalPeriodDays, auto_renew = :autoRenew
                 WHERE id = :id AND user_id = :userId
@@ -214,6 +217,7 @@ public class ContractRepository {
         return new MapSqlParameterSource()
                 .addValue("userId", c.getUserId())
                 .addValue("templateId", c.getTemplateId())
+                .addValue("clientId", c.getClientId())
                 .addValue("title", c.getTitle())
                 .addValue("content", c.getContent())
                 .addValue("variablesData", c.getVariablesData())
