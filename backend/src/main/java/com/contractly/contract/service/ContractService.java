@@ -32,6 +32,8 @@ public class ContractService {
     private final NotificationService notificationService;
     private final PdfGeneratorService pdfGeneratorService;
     private final ObjectMapper objectMapper;
+    private final com.contractly.clause.repository.ClauseRepository clauseRepository;
+    private final com.contractly.client.repository.ClientRepository clientRepository;
 
     @Value("${app.sign-link-base-url}")
     private String signLinkBaseUrl;
@@ -40,20 +42,30 @@ public class ContractService {
                            AuditService auditService,
                            NotificationService notificationService,
                            PdfGeneratorService pdfGeneratorService,
-                           ObjectMapper objectMapper) {
+                           ObjectMapper objectMapper,
+                           com.contractly.clause.repository.ClauseRepository clauseRepository,
+                           com.contractly.client.repository.ClientRepository clientRepository) {
         this.contractRepository = contractRepository;
         this.auditService = auditService;
         this.notificationService = notificationService;
         this.pdfGeneratorService = pdfGeneratorService;
         this.objectMapper = objectMapper;
+        this.clauseRepository = clauseRepository;
+        this.clientRepository = clientRepository;
     }
 
     /**
      * Create a new contract in DRAFT status.
      */
     public ContractResponse create(Long userId, ContractRequest request) {
+        if (request.getClientId() != null) {
+            clientRepository.findByIdAndUserId(request.getClientId(), userId)
+                    .orElseThrow(() -> new BadRequestException("Invalid client ID or client does not belong to you"));
+        }
+
         Contract contract = Contract.builder()
                 .userId(userId)
+                .clientId(request.getClientId())
                 .templateId(request.getTemplateId())
                 .title(request.getTitle())
                 .content(request.getContent())
@@ -104,6 +116,12 @@ public class ContractService {
             throw new BadRequestException("Only DRAFT contracts can be edited");
         }
 
+        if (request.getClientId() != null) {
+            clientRepository.findByIdAndUserId(request.getClientId(), userId)
+                    .orElseThrow(() -> new BadRequestException("Invalid client ID or client does not belong to you"));
+        }
+
+        contract.setClientId(request.getClientId());
         contract.setTitle(request.getTitle());
         contract.setContent(request.getContent());
         contract.setVariablesData(request.getVariablesData());
@@ -237,8 +255,63 @@ public class ContractService {
                 contract.getTitle(),
                 parsedContent,
                 contract.getRecipientName(),
-                signerName
+                signerName,
+                null,
+                null,
+                null
         );
+    }
+
+    /**
+     * Attach a clause to a contract draft and append its content.
+     */
+    public ContractResponse attachClause(Long id, Long userId, Long clauseId) {
+        Contract contract = findAndAuthorize(id, userId);
+
+        if (contract.getStatus() != ContractStatus.DRAFT) {
+            throw new BadRequestException("Only DRAFT contracts can be edited");
+        }
+
+        if (clauseRepository.isClauseAttached(id, clauseId)) {
+            throw new BadRequestException("This clause is already attached to the contract");
+        }
+
+        com.contractly.clause.model.Clause clause = clauseRepository.findById(clauseId)
+                .orElseThrow(() -> new ResourceNotFoundException("Clause", clauseId));
+
+        // Safe Insertion
+        String clauseHtml = String.format("<hr><div class=\"clause-block\"><h4>%s</h4>%s</div>",
+                clause.getTitle(), clause.getContent());
+        
+        String newContent = contract.getContent() == null ? clauseHtml : contract.getContent() + clauseHtml;
+        contract.setContent(newContent);
+        
+        contractRepository.update(contract);
+        
+        // Use current number of clauses as sort order (simplified)
+        int sortOrder = clauseRepository.findByContractId(id).size();
+        clauseRepository.attachClauseToContract(id, clauseId, sortOrder);
+
+        auditService.log(id, userId, "CLAUSE_ATTACHED", "{\"clauseId\": " + clauseId + "}");
+
+        return toResponse(contract);
+    }
+
+    /**
+     * Get all clauses attached to a contract.
+     */
+    public List<com.contractly.clause.dto.ClauseResponse> getClauses(Long id, Long userId) {
+        findAndAuthorize(id, userId);
+        return clauseRepository.findByContractId(id).stream()
+                .map(c -> com.contractly.clause.dto.ClauseResponse.builder()
+                        .id(c.getId())
+                        .title(c.getTitle())
+                        .category(c.getCategory())
+                        .content(c.getContent())
+                        .createdAt(c.getCreatedAt())
+                        .updatedAt(c.getUpdatedAt())
+                        .build())
+                .toList();
     }
 
     // ── Helpers ──
@@ -259,6 +332,7 @@ public class ContractService {
 
         return ContractResponse.builder()
                 .id(c.getId())
+                .clientId(c.getClientId())
                 .title(c.getTitle())
                 .content(c.getContent())
                 .variablesData(c.getVariablesData())
