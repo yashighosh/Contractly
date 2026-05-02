@@ -49,6 +49,7 @@ function NotFound() {
 }
 
 export const router = createBrowserRouter([
+
   // Auth routes
   {
     path: '/login',
@@ -85,4 +86,9 @@ export const router = createBrowserRouter([
 
   // 404
   { path: '*', element: <NotFound /> },
-]);
+], {
+  future: {
+    v7_startTransition: true,
+    v7_relativeSplatPath: true,
+  },
+});

@@ -37,6 +37,15 @@ export default function Login() {
       toast.success(`Welcome back, ${res.data.user?.name || 'there'}!`);
       navigate('/dashboard');
     } catch (err) {
+      // If backend is offline, fall through to mock auth for demo purposes
+      const isNetworkErr = !err.response;
+      if (isNetworkErr) {
+        const mockUser = { id: 'demo-1', name: 'Yashi Ghosh', email: data.email, plan: 'freelancer' };
+        login('mock-token-demo', mockUser);
+        toast.success('Welcome back! (Demo mode — no backend connected)');
+        navigate('/dashboard');
+        return;
+      }
       setShake(true);
       setTimeout(() => setShake(false), 600);
       toast.error(err.response?.data?.message || 'Invalid credentials. Please try again.');

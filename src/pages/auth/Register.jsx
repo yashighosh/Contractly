@@ -73,6 +73,15 @@ export default function Register() {
       toast.success('Account created! Welcome to Contractly 🎉');
       navigate('/dashboard');
     } catch (err) {
+      // Mock fallback when backend is offline
+      const isNetworkErr = !err.response;
+      if (isNetworkErr) {
+        const mockUser = { id: 'demo-1', name: data.name, email: data.email, plan: selectedPlan };
+        login('mock-token-demo', mockUser);
+        toast.success(`Welcome, ${data.name}! 🎉 (Demo mode — no backend connected)`);
+        navigate('/dashboard');
+        return;
+      }
       toast.error(err.response?.data?.message || 'Something went wrong. Please try again.');
     }
   };
