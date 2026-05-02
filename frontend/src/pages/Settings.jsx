@@ -83,14 +83,14 @@ export default function Settings() {
               <Card>
                 <h2 className="text-lg font-semibold text-fg-primary mb-5">Profile Information</h2>
                 <div className="flex items-center gap-4 mb-6">
-                  <Avatar name={user?.name || 'User'} size="xl" />
+                  <Avatar name={user?.name || user?.fullName || 'User'} size="xl" />
                   <div>
                     <Button variant="secondary" size="sm">Change Photo</Button>
                     <p className="text-xs text-fg-secondary mt-1">JPG, PNG up to 5MB</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <Input label="Full Name" defaultValue={user?.name || ''} placeholder="Priya Sharma" />
+                  <Input label="Full Name" defaultValue={user?.name || user?.fullName || ''} placeholder="Priya Sharma" />
                   <Input label="Email Address" type="email" defaultValue={user?.email || ''} placeholder="you@example.com" />
                   <Input label="Phone Number" type="tel" placeholder="+91 98765 43210" />
                   <Input label="GST Number" placeholder="27AAAAA0000A1Z5" hint="Optional — for invoice compliance" />

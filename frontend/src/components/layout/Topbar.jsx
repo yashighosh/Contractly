@@ -169,9 +169,9 @@ export function Topbar({ onOpenCommandPalette }) {
               onMouseEnter={e => e.currentTarget.style.borderColor='rgba(201,168,76,0.3)'}
               onMouseLeave={e => e.currentTarget.style.borderColor='#1E2D45'}
             >
-              <Avatar name={user?.name || 'User'} src={user?.avatar} size="sm" />
+              <Avatar name={user?.name || user?.fullName || 'User'} src={user?.avatar} size="sm" />
               <span className="hidden md:block text-sm font-medium max-w-[100px] truncate" style={{ color: '#EDF0F7' }}>
-                {user?.name || 'User'}
+                {user?.name || user?.fullName || 'User'}
               </span>
               <ChevronDown size={14} style={{ color: '#8896AD' }} />
             </button>

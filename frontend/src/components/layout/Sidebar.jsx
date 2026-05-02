@@ -27,16 +27,14 @@ export function Sidebar() {
     <motion.aside
       animate={{ width: sidebarCollapsed ? 64 : 240 }}
       transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-      className="relative h-full flex flex-col shrink-0 overflow-hidden z-20"
+      className="relative h-full shrink-0 z-20"
       style={{ backgroundColor: 'var(--sidebar-bg)' }}
     >
+      <div className="flex flex-col h-full overflow-hidden">
       {/* Logo */}
       <div className="h-16 flex items-center px-4 border-b shrink-0" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
         <div className="flex items-center gap-2.5 overflow-hidden">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-            style={{ background: 'var(--accent-gold)' }}>
-            <Zap size={16} style={{ color: '#0F1A2E' }} />
-          </div>
+          <img src="/logo.svg" alt="Contractly Logo" className="w-8 h-8 shrink-0" />
           <AnimatePresence>
             {!sidebarCollapsed && (
               <motion.span
@@ -67,6 +65,7 @@ export function Sidebar() {
           <NavItem key={item.path} item={item} collapsed={sidebarCollapsed} />
         ))}
       </div>
+      </div>
 
       {/* Collapse toggle */}
       <button
@@ -76,6 +75,7 @@ export function Sidebar() {
           backgroundColor: 'var(--bg-primary)',
           border: '1px solid var(--border-default)',
           color: 'var(--fg-secondary)',
+          zIndex: 30,
         }}
       >
         {sidebarCollapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}

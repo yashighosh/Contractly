@@ -44,9 +44,7 @@ export function MobileNav() {
           >
             <div className="h-16 flex items-center justify-between px-4 border-b border-gray-100">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center">
-                  <Zap size={16} className="text-white" />
-                </div>
+                <img src="/logo.svg" alt="Contractly Logo" className="w-8 h-8 shrink-0" />
                 <span className="text-serif text-xl text-gray-900">Contractly</span>
               </div>
               <button onClick={closeMobileNav} className="p-2 rounded-lg text-gray-400 hover:bg-gray-100">

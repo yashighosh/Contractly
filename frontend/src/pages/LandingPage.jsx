@@ -25,8 +25,8 @@ function LandingNav() {
   const nav = useNavigate();
   return (
     <header style={{ position:'sticky', top:0, zIndex:50, height:64, backdropFilter:'blur(14px)', WebkitBackdropFilter:'blur(14px)', background:'rgba(11,22,41,0.85)', borderBottom:`0.5px solid ${lp.border}`, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 5vw' }}>
-      <div style={{ fontFamily:'Lora,Georgia,serif', fontSize:20, fontWeight:600, color:lp.tp, display:'flex', alignItems:'center', gap:6 }}>
-        <span style={{ width:7, height:7, borderRadius:'50%', background:lp.gold, display:'inline-block', marginBottom:2 }} />
+      <div style={{ fontFamily:'Lora,Georgia,serif', fontSize:20, fontWeight:600, color:lp.tp, display:'flex', alignItems:'center', gap:8 }}>
+        <img src="/logo.svg" alt="Contractly" style={{ width: 26, height: 26 }} />
         Contractly
       </div>
       <nav className="hidden md:flex items-center gap-8">
@@ -166,19 +166,19 @@ function FeaturesSection() {
         <p style={{ fontFamily:'DM Sans,sans-serif', fontSize:12, fontWeight:600, color:lp.gold, textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:12 }}>Why Contractly</p>
         <h2 style={{ fontFamily:'Lora,Georgia,serif', fontSize:'clamp(26px,4vw,40px)', fontWeight:600, color:lp.tp, margin:0 }}>Everything you need, nothing you don't</h2>
       </div>
-      <div style={{ maxWidth:1000, margin:'0 auto', display:'grid', gap:1, gridTemplateColumns:'repeat(1,1fr)', background:lp.border }} className="sm:grid-cols-2 lg:grid-cols-3">
+      <div style={{ maxWidth:1000, margin:'0 auto', display:'grid', gap:32 }} className="grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {FEATURES.map(({icon:Icon,t,d},i)=>(
           <motion.div key={t} initial={{opacity:0,y:16}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{delay:i*0.08,duration:0.4}}
-            style={{ background:lp.card, padding:'28px 24px', position:'relative', overflow:'hidden', cursor:'default', transition:'background 200ms' }}
-            onMouseEnter={e=>{e.currentTarget.style.background=lp.mid;e.currentTarget.querySelector('.top-line').style.opacity='1'}}
-            onMouseLeave={e=>{e.currentTarget.style.background=lp.card;e.currentTarget.querySelector('.top-line').style.opacity='0'}}
+            style={{ background:lp.card, border:`1px solid ${lp.border}`, borderRadius:16, padding:'36px 24px', position:'relative', overflow:'hidden', cursor:'default', transition:'border-color 200ms, background 200ms', display:'flex', flexDirection:'column', alignItems:'center', textAlign:'center' }}
+            onMouseEnter={e=>{e.currentTarget.style.background=lp.mid;e.currentTarget.style.borderColor=lp.goldDim;e.currentTarget.querySelector('.top-line').style.opacity='1'}}
+            onMouseLeave={e=>{e.currentTarget.style.background=lp.card;e.currentTarget.style.borderColor=lp.border;e.currentTarget.querySelector('.top-line').style.opacity='0'}}
           >
-            <div className="top-line" style={{ position:'absolute', top:0, left:0, right:0, height:2, background:`linear-gradient(90deg, ${lp.gold}, transparent)`, opacity:0, transition:'opacity 200ms' }} />
-            <div style={{ width:36, height:36, borderRadius:8, background:lp.goldDim, display:'flex', alignItems:'center', justifyContent:'center', marginBottom:14 }}>
-              <Icon size={17} style={{ color:lp.gold }} />
+            <div className="top-line" style={{ position:'absolute', top:0, left:0, right:0, height:2, background:`linear-gradient(90deg, transparent, ${lp.gold}, transparent)`, opacity:0, transition:'opacity 200ms' }} />
+            <div style={{ width:40, height:40, borderRadius:10, background:lp.goldDim, display:'flex', alignItems:'center', justifyContent:'center', marginBottom:16 }}>
+              <Icon size={18} style={{ color:lp.gold }} />
             </div>
-            <h3 style={{ fontFamily:'DM Sans,sans-serif', fontSize:14, fontWeight:600, color:lp.tp, margin:'0 0 8px' }}>{t}</h3>
-            <p style={{ fontFamily:'DM Sans,sans-serif', fontSize:13, color:lp.ts, lineHeight:1.65, margin:0 }}>{d}</p>
+            <h3 style={{ fontFamily:'DM Sans,sans-serif', fontSize:15, fontWeight:600, color:lp.tp, margin:'0 0 10px' }}>{t}</h3>
+            <p style={{ fontFamily:'DM Sans,sans-serif', fontSize:13.5, color:lp.ts, lineHeight:1.6, margin:0 }}>{d}</p>
           </motion.div>
         ))}
       </div>
@@ -281,8 +281,8 @@ function LandingFooter() {
   return (
     <footer style={{ background:lp.mid, borderTop:`0.5px solid ${lp.border}`, padding:'28px 5vw' }}>
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div style={{ fontFamily:'Lora,Georgia,serif', fontSize:16, fontWeight:600, color:lp.tp, display:'flex', alignItems:'center', gap:6 }}>
-          <span style={{ width:7, height:7, borderRadius:'50%', background:lp.gold, display:'inline-block' }} />
+        <div style={{ fontFamily:'Lora,Georgia,serif', fontSize:16, fontWeight:600, color:lp.tp, display:'flex', alignItems:'center', gap:8 }}>
+          <img src="/logo.svg" alt="Contractly" style={{ width: 22, height: 22 }} />
           Contractly
         </div>
         <div className="flex gap-6">
