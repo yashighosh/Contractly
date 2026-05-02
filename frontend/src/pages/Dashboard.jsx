@@ -113,7 +113,7 @@ export default function Dashboard() {
   const navigate  = useNavigate();
   const userId    = user?.id;
 
-  const { data: contracts = [] } = useQuery({
+  const { data: contracts = [], isLoading, isError } = useQuery({
     queryKey: ['contracts'],
     queryFn: () => contractService.getAll()
   });
@@ -132,7 +132,7 @@ export default function Dashboard() {
 
   const hour     = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
-  const firstName = user?.name?.split(' ')[0] || 'there';
+  const firstName = (user?.name || user?.fullName)?.split(' ')[0] || 'there';
 
   /* ── Derived stats ── */
   const active   = contracts.filter((c) => c.status === 'signed' || c.status === 'sent' || c.status === 'viewed').length;
@@ -184,7 +184,16 @@ export default function Dashboard() {
           ))}
         </div>
 
-        {isEmpty ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--accent-gold)]"></div>
+          </div>
+        ) : isError ? (
+          <div className="text-center py-20">
+            <p className="text-red-500 mb-4">Failed to load dashboard data. Please try logging in again.</p>
+            <button onClick={() => navigate('/login')} className="btn-gold px-4 py-2 rounded-lg text-sm">Go to Login</button>
+          </div>
+        ) : isEmpty ? (
           <EmptyDashboard onNew={() => navigate('/contracts/new')} />
         ) : (
           <>
