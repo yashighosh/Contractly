@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useEditor, EditorContent } from '@tiptap/react';
@@ -208,9 +208,9 @@ export default function ContractNew() {
               </div>
             ) : (
               <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8 min-h-[600px]">
-                {/* Fixed editor toolbar */}
+                {/* Floating formatting toolbar */}
                 {editor && (
-                  <div className="flex items-center gap-0.5 p-1.5 mb-3 bg-gray-50 border border-gray-200 rounded-lg flex-wrap">
+                  <div className="flex items-center gap-0.5 mb-4 pb-3 border-b border-gray-100 flex-wrap">
                     <ToolbarButton active={editor.isActive('bold')} onClick={() => editor.chain().focus().toggleBold().run()} title="Bold">
                       <Bold size={14} />
                     </ToolbarButton>
@@ -221,10 +221,10 @@ export default function ContractNew() {
                       <UnderlineIcon size={14} />
                     </ToolbarButton>
                     <div className="w-px h-4 bg-gray-200 mx-0.5" />
-                    <ToolbarButton active={editor.isActive('heading', { level: 1 })} onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} title="H1">
+                    <ToolbarButton active={editor.isActive('heading', { level: 1 })} onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} title="Heading 1">
                       <Heading1 size={14} />
                     </ToolbarButton>
-                    <ToolbarButton active={editor.isActive('heading', { level: 2 })} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} title="H2">
+                    <ToolbarButton active={editor.isActive('heading', { level: 2 })} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} title="Heading 2">
                       <Heading2 size={14} />
                     </ToolbarButton>
                     <div className="w-px h-4 bg-gray-200 mx-0.5" />
