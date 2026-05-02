@@ -1,7 +1,6 @@
 package com.contractly.scheduler;
 
 import com.contractly.audit.service.AuditService;
-import com.contractly.auth.model.User;
 import com.contractly.auth.repository.UserRepository;
 import com.contractly.contract.model.Contract;
 import com.contractly.contract.model.ContractStatus;
