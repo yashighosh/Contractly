@@ -17,6 +17,7 @@ public class ContractRequest {
     private String content;
 
     private Long templateId;
+    private Long clientId;
     private String variablesData;       // JSON string of filled variables
     private String recipientName;
     private String recipientEmail;
