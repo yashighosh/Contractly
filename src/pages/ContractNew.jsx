@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -17,6 +17,8 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Modal } from '../components/ui/Modal';
 import { cn } from '../utils/cn';
+import { useAuthStore } from '../store/authStore';
+import { useDataStore } from '../store/dataStore';
 
 const pageVariants = { initial: { opacity: 0 }, animate: { opacity: 1, transition: { duration: 0.2 } } };
 
@@ -66,7 +68,12 @@ function ToolbarButton({ active, onClick, title, children }) {
 }
 
 export default function ContractNew() {
-  const navigate = useNavigate();
+  const navigate  = useNavigate();
+  const { user }  = useAuthStore();
+  const userId    = user?.id;
+  const addContract    = useDataStore((s) => s.addContract);
+  const updateContract = useDataStore((s) => s.updateContract);
+  const [contractId, setContractId] = useState(null); // set after first save
   const [title, setTitle] = useState('Untitled Contract');
   const [editingTitle, setEditingTitle] = useState(false);
   const [varValues, setVarValues] = useState({});
@@ -94,7 +101,24 @@ export default function ContractNew() {
 
   const handleSaveDraft = async () => {
     setIsSaving(true);
-    await new Promise((r) => setTimeout(r, 800));
+    await new Promise((r) => setTimeout(r, 400));
+    const payload = {
+      title,
+      status:  'draft',
+      content: editor?.getHTML() || '',
+      client:  varValues.client_name || '',
+      amount:  varValues.amount ? String(varValues.amount).replace(/[^0-9.]/g, '') : '',
+      variables: varValues,
+    };
+    if (contractId) {
+      updateContract(userId, contractId, payload);
+    } else {
+      // addContract returns void; we need the new id — read it from store after add
+      const before = Date.now();
+      addContract(userId, payload);
+      // The store prefixes ids with `c_${Date.now()}` — store the approximate id
+      setContractId(`c_${before}`);
+    }
     setIsSaving(false);
     setSavedStatus('saved');
     setTimeout(() => setSavedStatus(''), 3000);
@@ -102,6 +126,21 @@ export default function ContractNew() {
   };
 
   const handleSend = async () => {
+    if (!sendData.email) { toast.error('Enter client email'); return; }
+    const payload = {
+      title,
+      status:  'sent',
+      content: editor?.getHTML() || '',
+      client:  sendData.email,
+      amount:  varValues.amount ? String(varValues.amount).replace(/[^0-9.]/g, '') : '',
+      variables: varValues,
+      sentAt: new Date().toISOString(),
+    };
+    if (contractId) {
+      updateContract(userId, contractId, payload);
+    } else {
+      addContract(userId, payload);
+    }
     toast.success(`Contract sent to ${sendData.email}!`);
     setShowSendModal(false);
     navigate('/contracts');
