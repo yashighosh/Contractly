@@ -5,16 +5,40 @@ import {
   YASHI_SEED_CONTRACTS,
   YASHI_SEED_CLIENTS,
   YASHI_SEED_ACTIVITY,
+  DEMO_EMAIL,
 } from './seedData';
 
+// NOTE: circular import is intentional and safe in Vite ESM —
+// by the time loginWithDemo() is called, both modules are fully evaluated.
+// We use a getter so the import is resolved lazily at call-time.
+let _dataStore = null;
+function getDataStore() {
+  if (!_dataStore) {
+    // eslint-disable-next-line no-use-before-define
+    _dataStore = require('./dataStore');
+  }
+  return _dataStore;
+}
+
+const DEMO_USER_ID = 'demo-user-yashi';
+
 const DEMO_USER = {
-  id:          'demo-user-yashi',
-  name:        'Yashi Ghosh',
-  email:       'yashi@contractly.in',
-  role:        'freelancer',
-  company:     'Contractly',
-  avatar:      null,
-  isDemo:      true,
+  id:      DEMO_USER_ID,
+  name:    'Yashi Ghosh',
+  email:   'yashi@contractly.in',
+  role:    'freelancer',
+  company: 'Contractly',
+  avatar:  null,
+  isDemo:  true,
+};
+
+const DEMO_SEED = {
+  contracts: YASHI_SEED_CONTRACTS,
+  clients:   YASHI_SEED_CLIENTS,
+  clauses:   [],
+  templates: [],
+  activity:  YASHI_SEED_ACTIVITY,
+  _seeded:   true,
 };
 
 export const useAuthStore = create(
@@ -26,28 +50,22 @@ export const useAuthStore = create(
 
       /* ── loginWithDemo — NO network call, instant access ── */
       loginWithDemo: () => {
-        // Seed demo data into dataStore for the demo user
-        // Import lazily to avoid circular dep
+        // 1) Set auth state immediately
+        set({ user: DEMO_USER, token: 'demo-token-bypass', isAuthenticated: true });
+
+        // 2) Seed demo data into dataStore in-memory state
+        //    Dynamic import avoids circular reference at module load time
         import('./dataStore').then(({ useDataStore }) => {
-          const store = useDataStore.getState();
-          if (!store.users?.[DEMO_USER.id]) {
+          const { users } = useDataStore.getState();
+          if (!users?.[DEMO_USER_ID]?._seeded) {
             useDataStore.setState((s) => ({
               users: {
                 ...s.users,
-                [DEMO_USER.id]: {
-                  contracts: YASHI_SEED_CONTRACTS,
-                  clients:   YASHI_SEED_CLIENTS,
-                  clauses:   [],
-                  templates: [],
-                  activity:  YASHI_SEED_ACTIVITY,
-                  _seeded:   true,
-                },
+                [DEMO_USER_ID]: DEMO_SEED,
               },
             }));
           }
         });
-
-        set({ user: DEMO_USER, token: 'demo-token-bypass', isAuthenticated: true });
       },
 
       /* ── register({ name, email, password, companyName }) ── */
@@ -56,15 +74,13 @@ export const useAuthStore = create(
         if (!email?.trim()) throw new Error('Email is required');
         if (!password || password.length < 8) throw new Error('Password must be at least 8 characters');
 
-        const data = await authService.register({ fullName: name.trim(), email: email.trim().toLowerCase(), password, companyName });
+        const data = await authService.register({
+          fullName: name.trim(),
+          email: email.trim().toLowerCase(),
+          password,
+          companyName,
+        });
         set({ user: data.user, token: data.accessToken, isAuthenticated: true });
-
-        // Seed demo data if registering as demo email
-        if (email.trim().toLowerCase() === 'yashi@contractly.in') {
-          import('./dataStore').then(({ useDataStore }) => {
-            useDataStore.getState().seedDemoIfNeeded(data.user.id, email);
-          });
-        }
       },
 
       /* ── login({ email, password }) ── */
@@ -72,20 +88,25 @@ export const useAuthStore = create(
         if (!email?.trim())    throw new Error('Email is required');
         if (!password?.trim()) throw new Error('Password is required');
 
-        const data = await authService.login({ email: email.trim().toLowerCase(), password });
+        const data = await authService.login({
+          email: email.trim().toLowerCase(),
+          password,
+        });
         set({ user: data.user, token: data.accessToken, isAuthenticated: true });
 
-        // Seed demo data if logging in as demo email
-        import('./dataStore').then(({ useDataStore }) => {
-          useDataStore.getState().seedDemoIfNeeded(data.user.id, email);
-        });
+        // Seed demo data if logging in as demo email via real API
+        if (email.trim().toLowerCase() === DEMO_EMAIL) {
+          import('./dataStore').then(({ useDataStore }) => {
+            useDataStore.getState().seedDemoIfNeeded(data.user.id, email);
+          });
+        }
       },
 
       /* ── logout ── */
       logout: () => {
         const { user } = get();
         if (user?.isDemo) {
-          // Demo logout — no API call needed
+          // Demo logout — no API call, no data wipe (preserve local edits)
           set({ token: null, user: null, isAuthenticated: false });
           return;
         }

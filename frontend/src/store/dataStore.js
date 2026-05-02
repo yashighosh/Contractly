@@ -53,17 +53,18 @@ export const useDataStore = create(
       /* ── Seed demo data for yashi on first load ── */
       seedDemoIfNeeded: (userId, email) => {
         const state = get();
-        // Only seed if this userId has no data yet AND email matches demo account
-        if (
-          email?.toLowerCase() === DEMO_EMAIL &&
-          !state.users[userId]
-        ) {
+        const isDemoEmail = email?.toLowerCase() === DEMO_EMAIL;
+        const isDemoId    = userId === 'demo-user-yashi';
+
+        // Seed if: (email matches OR demo ID) AND data slot is empty/unseeded
+        if ((isDemoEmail || isDemoId) && !state.users[userId]?._seeded) {
           set((s) => ({
             users: {
               ...s.users,
               [userId]: {
                 contracts: YASHI_SEED_CONTRACTS,
                 clients:   YASHI_SEED_CLIENTS,
+                clauses:   [],
                 templates: [],
                 activity:  YASHI_SEED_ACTIVITY,
                 _seeded:   true,
