@@ -21,6 +21,7 @@ function emptyUserData() {
   return {
     contracts: [],
     clients:   [],
+    clauses:   [],
     templates: [],
     activity:  [],
   };
@@ -117,6 +118,17 @@ export const useDataStore = create(
       addTemplate: (userId, tpl) =>
         patchUser(set, userId, (d) => ({
           templates: [{ ...tpl, id: `t_${Date.now()}`, createdAt: new Date().toISOString() }, ...d.templates],
+        })),
+
+      /* ── clauses ── */
+      addClause: (userId, clause) =>
+        patchUser(set, userId, (d) => ({
+          clauses: [{ ...clause, id: `clause_${Date.now()}`, createdAt: new Date().toISOString() }, ...(d.clauses ?? [])],
+        })),
+
+      deleteClause: (userId, id) =>
+        patchUser(set, userId, (d) => ({
+          clauses: (d.clauses ?? []).filter((c) => c.id !== id),
         })),
 
       /* ── activity ── */
