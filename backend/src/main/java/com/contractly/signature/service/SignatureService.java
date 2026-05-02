@@ -11,10 +11,17 @@ import com.contractly.signature.dto.SignRequest;
 import com.contractly.signature.dto.SignResponse;
 import com.contractly.signature.model.SignatureRecord;
 import com.contractly.signature.repository.SignatureRepository;
+import com.contractly.pdf.service.PdfGeneratorService;
+import com.contractly.storage.service.S3StorageService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
+import java.util.Base64;
 
 /**
  * E-signature service — handles viewing and signing contracts via token links.
@@ -26,15 +33,21 @@ public class SignatureService {
     private final SignatureRepository signatureRepository;
     private final AuditService auditService;
     private final NotificationService notificationService;
+    private final PdfGeneratorService pdfGeneratorService;
+    private final S3StorageService s3StorageService;
 
     public SignatureService(ContractRepository contractRepository,
                             SignatureRepository signatureRepository,
                             AuditService auditService,
-                            NotificationService notificationService) {
+                            NotificationService notificationService,
+                            PdfGeneratorService pdfGeneratorService,
+                            S3StorageService s3StorageService) {
         this.contractRepository = contractRepository;
         this.signatureRepository = signatureRepository;
         this.auditService = auditService;
         this.notificationService = notificationService;
+        this.pdfGeneratorService = pdfGeneratorService;
+        this.s3StorageService = s3StorageService;
     }
 
     /**
@@ -75,6 +88,7 @@ public class SignatureService {
     /**
      * Submit signature for a contract.
      */
+    @Transactional
     public SignResponse sign(String token, SignRequest signRequest, HttpServletRequest httpRequest) {
         Contract contract = contractRepository.findBySignToken(token)
                 .orElseThrow(() -> new ResourceNotFoundException("Contract", "token", token));
@@ -91,14 +105,23 @@ public class SignatureService {
             throw new BadRequestException("This sign link has expired");
         }
 
+        LocalDateTime signedTimestamp = LocalDateTime.now();
+        String ipAddress = httpRequest.getRemoteAddr();
+        
+        // Generate Deterministic SHA-256 Hash
+        String payloadToHash = contract.getContent() + signRequest.getSignerEmail() + signedTimestamp.toString() + ipAddress;
+        String documentHash = generateHash(payloadToHash);
+
         // Save signature record
         SignatureRecord record = SignatureRecord.builder()
                 .contractId(contract.getId())
                 .signerName(signRequest.getSignerName())
                 .signerEmail(signRequest.getSignerEmail())
                 .signatureData(signRequest.getSignatureData())
-                .ipAddress(httpRequest.getRemoteAddr())
+                .ipAddress(ipAddress)
                 .userAgent(httpRequest.getHeader("User-Agent"))
+                .documentHash(documentHash)
+                .signedAt(signedTimestamp)
                 .build();
 
         signatureRepository.save(record);
@@ -106,9 +129,29 @@ public class SignatureService {
         // Transition to SIGNED
         contractRepository.updateStatus(contract.getId(), ContractStatus.SIGNED, "signed_at");
 
+        // Invalidate token immediately to prevent link reuse
+        contractRepository.setSignToken(contract.getId(), null, null);
+
+        // Generate PDF
+        byte[] pdfBytes = pdfGeneratorService.generateContractPdf(
+                contract.getTitle(),
+                contract.getContent(),
+                contract.getRecipientName(),
+                signRequest.getSignerName(),
+                documentHash,
+                ipAddress,
+                signedTimestamp
+        );
+
+        // Upload to S3
+        String s3Key = s3StorageService.upload(pdfBytes, "contracts/signed", "contract_" + contract.getId() + ".pdf", "application/pdf");
+        
+        // Save PDF Key
+        contractRepository.setSignedPdfKey(contract.getId(), s3Key);
+
         // Audit log
         auditService.logAnonymous(contract.getId(), "SIGNED",
-                httpRequest.getRemoteAddr(), httpRequest.getHeader("User-Agent"));
+                ipAddress, httpRequest.getHeader("User-Agent"));
 
         // Notify both parties
         notificationService.sendContractSignedEmail(contract);
@@ -118,7 +161,17 @@ public class SignatureService {
                 .contractTitle(contract.getTitle())
                 .status(ContractStatus.SIGNED.name())
                 .alreadySigned(true)
-                .signedAt(LocalDateTime.now())
+                .signedAt(signedTimestamp)
                 .build();
+    }
+
+    private String generateHash(String payload) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] encodedhash = digest.digest(payload.getBytes(StandardCharsets.UTF_8));
+            return Base64.getEncoder().encodeToString(encodedhash);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("Error generating hash", e);
+        }
     }
 }
