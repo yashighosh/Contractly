@@ -40,7 +40,7 @@ export default function Templates() {
       tab === 'All'                  ? true :
       tab === 'My Templates'         ? t.type === 'my' :
       t.type === 'system';
-    return matchTab && t.name.toLowerCase().includes(search.toLowerCase());
+    return matchTab && (t.name || t.title || '').toLowerCase().includes((search || '').toLowerCase());
   });
 
   return (
