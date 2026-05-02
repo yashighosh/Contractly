@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @tailwind base;
@@ -40,6 +41,19 @@
   --font-sans:  'DM Sans', Inter, system-ui, sans-serif;
   --font-serif: 'Lora', Georgia, 'Times New Roman', serif;
   --font-mono:  'JetBrains Mono', 'Fira Code', monospace;
+
+  /* ── Landing Page Tokens ── */
+  --lp-navy:        #0B1629;
+  --lp-navy-mid:    #111F38;
+  --lp-navy-card:   #172035;
+  --lp-navy-border: #1E2D45;
+  --lp-gold:        #C9A84C;
+  --lp-gold-light:  #E2C87A;
+  --lp-gold-dim:    rgba(201,168,76,0.12);
+  --lp-emerald:     #0E9C78;
+  --lp-text-primary:   #EDF0F7;
+  --lp-text-secondary: #8896AD;
+  --lp-text-muted:     #4A5A72;
 
   /* Radius */
   --radius-sm:  4px;
