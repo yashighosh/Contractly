@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, Search, Plus, LogOut, User, ChevronDown, Menu } from 'lucide-react';
+import { Bell, Search, Plus, LogOut, User, ChevronDown, Menu, Sun, Moon, Command } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Avatar } from '../ui/Avatar';
 import { Dropdown } from '../ui/Dropdown';
 import { Button } from '../ui/Button';
@@ -8,11 +9,24 @@ import { useAuthStore } from '../../store/authStore';
 import { useUIStore } from '../../store/uiStore';
 import { cn } from '../../utils/cn';
 
-export function Topbar() {
+export function Topbar({ onOpenCommandPalette }) {
   const { user, logout } = useAuthStore();
-  const { toggleMobileNav } = useUIStore();
+  const { toggleMobileNav, theme, toggleTheme } = useUIStore();
   const navigate = useNavigate();
   const [searchFocus, setSearchFocus] = useState(false);
+  const isDark = theme === 'dark';
+
+  // Cmd+K shortcut hint → open palette
+  useEffect(() => {
+    const down = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        onOpenCommandPalette?.();
+      }
+    };
+    window.addEventListener('keydown', down);
+    return () => window.removeEventListener('keydown', down);
+  }, [onOpenCommandPalette]);
 
   const handleLogout = () => {
     logout();
@@ -26,63 +40,95 @@ export function Topbar() {
   ];
 
   return (
-    <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-6 shrink-0 z-10">
+    <header className="h-16 bg-bg-primary border-b border-border-col flex items-center justify-between px-4 lg:px-6 shrink-0 z-10">
       {/* Left: Mobile menu + Search */}
       <div className="flex items-center gap-3 flex-1">
         <button
           onClick={toggleMobileNav}
-          className="lg:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors"
+          className="lg:hidden p-2 rounded-lg text-fg-secondary hover:bg-bg-secondary transition-colors"
         >
           <Menu size={20} />
         </button>
 
-        {/* Search */}
-        <div className={cn(
-          'hidden sm:flex items-center gap-2 px-3 py-2 rounded-lg border transition-all duration-150 bg-gray-50',
-          searchFocus ? 'border-brand-400 bg-white ring-2 ring-brand-500/10 w-80' : 'border-gray-200 w-64'
-        )}>
-          <Search size={15} className="text-gray-400 shrink-0" />
-          <input
-            type="text"
-            placeholder="Search contracts, clients…"
-            className="bg-transparent text-sm text-gray-700 placeholder:text-gray-400 outline-none flex-1 min-w-0"
-            onFocus={() => setSearchFocus(true)}
-            onBlur={() => setSearchFocus(false)}
-          />
-          {searchFocus && (
-            <kbd className="hidden lg:inline-flex px-1.5 py-0.5 text-xs text-gray-400 bg-gray-100 rounded border border-gray-200 font-mono">⌘K</kbd>
+        {/* Search — opens command palette */}
+        <button
+          onClick={onOpenCommandPalette}
+          className={cn(
+            'hidden sm:flex items-center gap-2 px-3 py-2 rounded-xl border transition-all duration-150',
+            'bg-bg-secondary border-border-col text-fg-secondary hover:border-[var(--accent-gold)] w-64',
+            searchFocus && 'ring-2 ring-[var(--accent-gold)]/20 w-80 border-[var(--accent-gold)]'
           )}
-        </div>
+          onFocus={() => setSearchFocus(true)}
+          onBlur={() => setSearchFocus(false)}
+        >
+          <Search size={15} className="shrink-0 opacity-50" />
+          <span className="text-sm flex-1 text-left opacity-60">Search contracts, clients…</span>
+          <kbd className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-xs text-fg-secondary bg-bg-page rounded border border-border-col font-mono">
+            <Command size={10} />K
+          </kbd>
+        </button>
       </div>
 
-      {/* Right: Actions + User */}
-      <div className="flex items-center gap-2">
+      {/* Right cluster */}
+      <div className="flex items-center gap-1.5">
+        {/* New Contract */}
         <Button
           variant="primary"
           size="sm"
           icon={<Plus size={15} />}
           onClick={() => navigate('/contracts/new')}
-          className="hidden sm:inline-flex"
+          className="hidden sm:inline-flex !bg-[var(--accent-gold)] !text-brand-navy-900 hover:!bg-brand-gold-300 font-semibold"
         >
           New Contract
         </Button>
 
+        {/* Theme toggle */}
+        <button
+          onClick={toggleTheme}
+          className="p-2 rounded-xl text-fg-secondary hover:bg-bg-secondary transition-colors overflow-hidden"
+          title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          <AnimatePresence mode="wait" initial={false}>
+            {isDark ? (
+              <motion.div
+                key="sun"
+                initial={{ rotate: -90, opacity: 0 }}
+                animate={{ rotate: 0, opacity: 1 }}
+                exit={{ rotate: 90, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Sun size={18} />
+              </motion.div>
+            ) : (
+              <motion.div
+                key="moon"
+                initial={{ rotate: 90, opacity: 0 }}
+                animate={{ rotate: 0, opacity: 1 }}
+                exit={{ rotate: -90, opacity: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Moon size={18} />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </button>
+
         {/* Notifications */}
-        <button className="relative p-2 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors">
+        <button className="relative p-2 rounded-xl text-fg-secondary hover:bg-bg-secondary transition-colors">
           <Bell size={18} />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-brand-500 rounded-full" />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[var(--accent-gold)] rounded-full animate-pulse" />
         </button>
 
         {/* User menu */}
         <Dropdown
           align="right"
           trigger={
-            <button className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-lg hover:bg-gray-50 transition-colors">
+            <button className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-xl hover:bg-bg-secondary transition-colors">
               <Avatar name={user?.name || 'User'} src={user?.avatar} size="sm" />
-              <span className="hidden md:block text-sm font-medium text-gray-700 max-w-[100px] truncate">
+              <span className="hidden md:block text-sm font-medium text-fg-primary max-w-[100px] truncate">
                 {user?.name || 'User'}
               </span>
-              <ChevronDown size={14} className="text-gray-400" />
+              <ChevronDown size={14} className="text-fg-secondary" />
             </button>
           }
           items={userMenuItems}

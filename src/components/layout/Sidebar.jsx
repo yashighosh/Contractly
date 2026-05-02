@@ -1,20 +1,19 @@
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   LayoutDashboard, FileText, Copy, BookOpen,
-  Users, Settings, ChevronLeft, ChevronRight,
-  Zap, AlertCircle
+  Users, Settings, ChevronLeft, ChevronRight, Zap
 } from 'lucide-react';
 import { cn } from '../../utils/cn';
 import { useUIStore } from '../../store/uiStore';
 import { Tooltip } from '../ui/Tooltip';
 
 const NAV_ITEMS = [
-  { label: 'Dashboard',     path: '/dashboard',  icon: LayoutDashboard },
-  { label: 'Contracts',     path: '/contracts',  icon: FileText },
-  { label: 'Templates',     path: '/templates',  icon: Copy },
-  { label: 'Clause Library',path: '/clauses',    icon: BookOpen },
-  { label: 'Clients',       path: '/clients',    icon: Users },
+  { label: 'Dashboard',     path: '/dashboard', icon: LayoutDashboard },
+  { label: 'Contracts',     path: '/contracts', icon: FileText },
+  { label: 'Templates',     path: '/templates', icon: Copy },
+  { label: 'Clause Library',path: '/clauses',   icon: BookOpen },
+  { label: 'Clients',       path: '/clients',   icon: Users },
 ];
 
 const BOTTOM_ITEMS = [
@@ -28,13 +27,15 @@ export function Sidebar() {
     <motion.aside
       animate={{ width: sidebarCollapsed ? 64 : 240 }}
       transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-      className="relative h-full bg-white border-r border-gray-200 flex flex-col shrink-0 overflow-hidden z-20"
+      className="relative h-full flex flex-col shrink-0 overflow-hidden z-20"
+      style={{ backgroundColor: 'var(--sidebar-bg)' }}
     >
       {/* Logo */}
-      <div className="h-16 flex items-center px-4 border-b border-gray-100 shrink-0">
+      <div className="h-16 flex items-center px-4 border-b shrink-0" style={{ borderColor: 'rgba(255,255,255,0.08)' }}>
         <div className="flex items-center gap-2.5 overflow-hidden">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shrink-0">
-            <Zap size={16} className="text-white" />
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+            style={{ background: 'var(--accent-gold)' }}>
+            <Zap size={16} style={{ color: '#0F1A2E' }} />
           </div>
           <AnimatePresence>
             {!sidebarCollapsed && (
@@ -43,7 +44,8 @@ export function Sidebar() {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
                 transition={{ duration: 0.15 }}
-                className="text-serif text-xl font-medium text-gray-900 whitespace-nowrap"
+                className="font-serif text-xl font-medium whitespace-nowrap"
+                style={{ color: '#F1F5F9' }}
               >
                 Contractly
               </motion.span>
@@ -60,7 +62,7 @@ export function Sidebar() {
       </nav>
 
       {/* Bottom */}
-      <div className="px-2 py-3 border-t border-gray-100 space-y-0.5">
+      <div className="px-2 py-3 space-y-0.5" style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}>
         {BOTTOM_ITEMS.map((item) => (
           <NavItem key={item.path} item={item} collapsed={sidebarCollapsed} />
         ))}
@@ -69,7 +71,12 @@ export function Sidebar() {
       {/* Collapse toggle */}
       <button
         onClick={toggleSidebar}
-        className="absolute -right-3 top-20 w-6 h-6 bg-white border border-gray-200 rounded-full flex items-center justify-center shadow-sm hover:shadow-md transition-all hover:border-brand-300 text-gray-500 hover:text-brand-500"
+        className="absolute -right-3 top-20 w-6 h-6 rounded-full flex items-center justify-center shadow-card hover:shadow-card-lg transition-all"
+        style={{
+          backgroundColor: 'var(--bg-primary)',
+          border: '1px solid var(--border-default)',
+          color: 'var(--fg-secondary)',
+        }}
       >
         {sidebarCollapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
       </button>
@@ -85,12 +92,33 @@ function NavItem({ item, collapsed }) {
         to={item.path}
         className={({ isActive }) =>
           cn(
-            'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 group relative',
+            'flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 relative',
             isActive
-              ? 'bg-brand-50 text-brand-600 border-l-2 border-brand-500 pl-[10px]'
-              : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 border-l-2 border-transparent'
+              ? 'border-l-2'
+              : 'border-l-2 border-transparent'
           )
         }
+        style={({ isActive }) => ({
+          backgroundColor: isActive
+            ? 'rgba(201,168,76,0.12)'
+            : 'transparent',
+          color: isActive
+            ? 'var(--accent-gold)'
+            : 'var(--sidebar-text)',
+          borderLeftColor: isActive ? 'var(--accent-gold)' : 'transparent',
+          paddingLeft: isActive ? '10px' : '12px',
+        })}
+        onMouseEnter={(e) => {
+          if (!e.currentTarget.classList.contains('active')) {
+            e.currentTarget.style.backgroundColor = 'var(--sidebar-hover)';
+            e.currentTarget.style.color = '#F1F5F9';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!e.currentTarget.querySelector('[aria-current]')) {
+            // Reset happens via NavLink's className
+          }
+        }}
       >
         <Icon size={18} className="shrink-0" />
         <AnimatePresence>
