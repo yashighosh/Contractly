@@ -1,50 +1,95 @@
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ═══════════════════════════════════════════════════════
+   DESIGN TOKENS — CSS CUSTOM PROPERTIES
+   ═══════════════════════════════════════════════════════ */
+
 :root {
-  /* Brand */
-  --brand-50:  #eef2ff;
-  --brand-100: #e0e7ff;
-  --brand-500: #4f46e5;
-  --brand-600: #4338ca;
-  --brand-700: #3730a3;
+  /* Backgrounds */
+  --bg-page:      #F8FAFC;  /* slate-50  */
+  --bg-primary:   #FFFFFF;  /* white cards */
+  --bg-secondary: #F1F5F9;  /* slate-100 */
+  --bg-tertiary:  #E2E8F0;  /* slate-200 */
 
-  /* Neutrals */
-  --gray-50:  #f9fafb;
-  --gray-100: #f3f4f6;
-  --gray-200: #e5e7eb;
-  --gray-300: #d1d5db;
-  --gray-500: #6b7280;
-  --gray-700: #374151;
-  --gray-900: #111827;
+  /* Foregrounds */
+  --fg-primary:   #0F1A2E;  /* navy-900  */
+  --fg-secondary: #64748B;  /* slate-500 */
+  --fg-muted:     #94A3B8;  /* slate-400 */
 
-  /* Status Colors */
-  --status-draft:   #6b7280;
-  --status-sent:    #3b82f6;
-  --status-viewed:  #f59e0b;
-  --status-signed:  #10b981;
-  --status-expired: #ef4444;
-  --status-renewed: #8b5cf6;
+  /* Borders */
+  --border-default: #E2E8F0;  /* slate-200 */
+  --border-strong:  #CBD5E1;  /* slate-300 */
 
-  /* Surfaces */
-  --surface-base:   #ffffff;
-  --surface-subtle: #f9fafb;
-  --surface-raised: #ffffff;
-  --border-default: #e5e7eb;
-  --border-strong:  #d1d5db;
+  /* Accents */
+  --accent-gold:    #C9A84C;
+  --accent-gold-lt: #FDF6E3;
+  --accent-emerald: #0E9470;
+  --accent-em-lt:   #E6F7F3;
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -1px rgba(0,0,0,0.04);
-  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -2px rgba(0,0,0,0.04);
-  --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.08), 0 10px 10px -5px rgba(0,0,0,0.03);
+  /* Sidebar */
+  --sidebar-bg:     #0F1A2E;
+  --sidebar-text:   #94A3B8;
+  --sidebar-active: #C9A84C;
+  --sidebar-hover:  rgba(255,255,255,0.06);
+
+  /* Fonts */
+  --font-sans:  'DM Sans', Inter, system-ui, sans-serif;
+  --font-serif: 'Lora', Georgia, 'Times New Roman', serif;
+  --font-mono:  'JetBrains Mono', 'Fira Code', monospace;
+
+  /* Radius */
+  --radius-sm:  4px;
+  --radius-md:  8px;
+  --radius-lg:  12px;
+  --radius-xl:  16px;
+  --radius-2xl: 20px;
 }
 
-* {
+/* ── Dark Mode Overrides ── */
+.dark {
+  --bg-page:      #0F1A2E;  /* navy-900 */
+  --bg-primary:   #162338;  /* navy-800 */
+  --bg-secondary: #1E3250;  /* navy-700 */
+  --bg-tertiary:  #2E3C52;  /* navy-600 */
+
+  --fg-primary:   #F1F5F9;  /* slate-100 */
+  --fg-secondary: #94A3B8;  /* slate-400 */
+  --fg-muted:     #64748B;  /* slate-500 */
+
+  --border-default: #2E3C52;
+  --border-strong:  #3D4F6A;
+
+  --accent-gold:    #D4B567;  /* gold-400 slightly brighter in dark */
+  --accent-gold-lt: rgba(201,168,76,0.12);
+  --accent-emerald: #12B589;
+  --accent-em-lt:   rgba(18,181,137,0.12);
+
+  --sidebar-bg:     #0A1222;
+  --sidebar-active: #D4B567;
+  --sidebar-hover:  rgba(255,255,255,0.04);
+}
+
+/* ═══════════════════════════════════════════════════════
+   GLOBAL RESETS & BASE STYLES
+   ═══════════════════════════════════════════════════════ */
+
+*,
+*::before,
+*::after {
   box-sizing: border-box;
+  /* Smooth theme transitions */
+  transition-property: background-color, color, border-color, fill, stroke, box-shadow;
+  transition-duration: 200ms;
+  transition-timing-function: ease;
+}
+
+/* Override transition for elements that need fast interaction */
+button, a, input, select, textarea {
+  transition-duration: 150ms;
 }
 
 html {
@@ -54,86 +99,120 @@ html {
 }
 
 body {
-  font-family: 'DM Sans', sans-serif;
-  background-color: #f9fafb;
-  color: #111827;
+  font-family: var(--font-sans);
+  background-color: var(--bg-page);
+  color: var(--fg-primary);
   margin: 0;
   padding: 0;
+  line-height: 1.6;
 }
 
-/* Scrollbar styling */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+/* ═══════════════════════════════════════════════════════
+   TYPOGRAPHY
+   ═══════════════════════════════════════════════════════ */
+
+.font-serif,
+h1.serif,
+.contract-title {
+  font-family: var(--font-serif) !important;
 }
-::-webkit-scrollbar-track {
-  background: transparent;
+
+.font-mono,
+code,
+pre {
+  font-family: var(--font-mono);
 }
+
+/* ═══════════════════════════════════════════════════════
+   SCROLLBAR STYLING
+   ═══════════════════════════════════════════════════════ */
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb {
-  background: #d1d5db;
+  background: var(--border-strong);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+  background: var(--fg-muted);
 }
 
-/* Skeleton shimmer */
+/* ═══════════════════════════════════════════════════════
+   SKELETON / SHIMMER
+   ═══════════════════════════════════════════════════════ */
+
 @layer utilities {
   .skeleton {
-    background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+    background: linear-gradient(
+      90deg,
+      var(--bg-secondary) 25%,
+      var(--bg-tertiary) 50%,
+      var(--bg-secondary) 75%
+    );
     background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-  }
-
-  .text-serif {
-    font-family: 'Instrument Serif', Georgia, serif;
-  }
-
-  .text-mono {
-    font-family: 'JetBrains Mono', monospace;
+    animation: shimmer 1.6s infinite;
   }
 }
 
-/* TipTap editor styles */
+/* ═══════════════════════════════════════════════════════
+   TIPTAP EDITOR STYLES
+   ═══════════════════════════════════════════════════════ */
+
 .ProseMirror {
   outline: none;
-  min-height: 400px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 1rem;
-  line-height: 1.75;
-  color: #111827;
+  min-height: 480px;
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;  /* 15px */
+  line-height: 1.8;
+  color: var(--fg-primary);
+  background-color: #FAFAF8;  /* paper white */
+}
+
+.dark .ProseMirror {
+  background-color: #1A2A40;
+  color: #E2E8F0;
 }
 
 .ProseMirror p.is-editor-empty:first-child::before {
   content: attr(data-placeholder);
   float: left;
-  color: #9ca3af;
+  color: var(--fg-muted);
   pointer-events: none;
   height: 0;
+  font-style: italic;
 }
 
 .ProseMirror h1 {
-  font-family: 'Instrument Serif', serif;
+  font-family: var(--font-serif);
   font-size: 2rem;
-  font-weight: 400;
+  font-weight: 500;
+  letter-spacing: -0.02em;
   margin: 1.5rem 0 0.75rem;
-  color: #111827;
+  color: var(--fg-primary);
+  line-height: 1.25;
 }
 
 .ProseMirror h2 {
-  font-family: 'Instrument Serif', serif;
-  font-size: 1.5rem;
-  font-weight: 400;
-  margin: 1.25rem 0 0.5rem;
-  color: #111827;
+  font-family: var(--font-serif);
+  font-size: 1.375rem;
+  font-weight: 500;
+  margin: 1.5rem 0 0.5rem;
+  color: var(--fg-primary);
+  border-bottom: 1px solid var(--border-default);
+  padding-bottom: 0.375rem;
 }
 
 .ProseMirror h3 {
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 600;
   margin: 1rem 0 0.5rem;
-  color: #374151;
+  color: var(--fg-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.75rem;
 }
+
+.ProseMirror p { margin: 0.5rem 0; }
 
 .ProseMirror ul, .ProseMirror ol {
   padding-left: 1.5rem;
@@ -143,45 +222,51 @@ body {
 .ProseMirror li { margin: 0.25rem 0; }
 
 .ProseMirror blockquote {
-  border-left: 3px solid #4f46e5;
+  border-left: 3px solid var(--accent-gold);
   padding-left: 1rem;
   margin: 1rem 0;
-  color: #6b7280;
+  color: var(--fg-secondary);
   font-style: italic;
+  background: var(--accent-gold-lt);
+  padding: 0.75rem 1rem;
+  border-radius: 0 8px 8px 0;
 }
 
 .ProseMirror hr {
   border: none;
-  border-top: 1px solid #e5e7eb;
-  margin: 1.5rem 0;
+  border-top: 1px solid var(--border-default);
+  margin: 2rem 0;
 }
 
 .ProseMirror table {
   width: 100%;
   border-collapse: collapse;
   margin: 1rem 0;
+  font-size: 0.875rem;
 }
 
 .ProseMirror td, .ProseMirror th {
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border-default);
   padding: 0.5rem 0.75rem;
   text-align: left;
 }
 
 .ProseMirror th {
-  background: #f9fafb;
+  background: var(--bg-secondary);
   font-weight: 600;
-  font-size: 0.875rem;
-  color: #374151;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--fg-secondary);
 }
 
 /* Variable highlight pill */
 .variable-highlight {
-  background-color: #eef2ff;
-  color: #4f46e5;
-  border: 1px solid #c7d2fe;
+  background-color: var(--accent-gold-lt);
+  color: var(--accent-gold);
+  border: 1px solid rgba(201, 168, 76, 0.3);
   border-radius: 4px;
-  padding: 0px 6px;
+  padding: 1px 6px;
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -189,11 +274,69 @@ body {
 }
 
 .variable-highlight:hover {
-  background-color: #e0e7ff;
+  background-color: rgba(201, 168, 76, 0.2);
 }
 
-/* Page transition wrapper */
+/* ═══════════════════════════════════════════════════════
+   GLASSMORPHISM UTILITY
+   ═══════════════════════════════════════════════════════ */
+
+.glass {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dark .glass {
+  background: rgba(22, 35, 56, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ═══════════════════════════════════════════════════════
+   GOLD BUTTON BASE
+   ═══════════════════════════════════════════════════════ */
+
+.btn-gold {
+  background: var(--accent-gold);
+  color: #0F1A2E;
+  font-weight: 600;
+  transition: all 150ms ease;
+}
+
+.btn-gold:hover {
+  background: #D4B567;
+  transform: scale(1.01);
+  box-shadow: 0 4px 14px rgba(201,168,76,0.35);
+}
+
+.btn-gold:active {
+  transform: scale(0.98);
+}
+
+/* ═══════════════════════════════════════════════════════
+   SIDEBAR USING CSS VARS
+   ═══════════════════════════════════════════════════════ */
+
+.sidebar-base {
+  background-color: var(--sidebar-bg);
+}
+
+/* ═══════════════════════════════════════════════════════
+   CARD BASE  
+   ═══════════════════════════════════════════════════════ */
+
+.card-base {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+}
+
+/* ═══════════════════════════════════════════════════════
+   PAGE WRAPPER
+   ═══════════════════════════════════════════════════════ */
+
 .page-wrapper {
-  width: 100%;
+  background-color: var(--bg-page);
   min-height: 100%;
 }
