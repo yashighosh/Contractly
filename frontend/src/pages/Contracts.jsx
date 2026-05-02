@@ -66,8 +66,9 @@ export default function Contracts() {
 
   const filtered = contracts.filter((c) => {
     const matchSearch =
-      c.title?.toLowerCase().includes(search.toLowerCase()) ||
-      c.client?.toLowerCase().includes(search.toLowerCase());
+      c.title?.toLowerCase().includes((search || '').toLowerCase()) ||
+      c.recipientName?.toLowerCase().includes((search || '').toLowerCase()) ||
+      c.recipientEmail?.toLowerCase().includes((search || '').toLowerCase());
     const matchStatus = status === 'all' || c.status === status;
     return matchSearch && matchStatus;
   });
