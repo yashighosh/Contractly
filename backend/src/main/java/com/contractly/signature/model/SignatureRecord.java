@@ -19,5 +19,6 @@ public class SignatureRecord {
     private String signatureData;   // base64 encoded signature image
     private String ipAddress;
     private String userAgent;
+    private String documentHash;
     private LocalDateTime signedAt;
 }
