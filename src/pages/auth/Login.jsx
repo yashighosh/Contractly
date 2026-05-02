@@ -1,211 +1,158 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
 import { motion } from 'framer-motion';
-import { PageTransition } from '../../components/ui/PageTransition';
-import { Eye, EyeOff, Mail, Lock, Zap, ArrowRight } from 'lucide-react';
-import { toast } from 'react-hot-toast';
-import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
-import { Divider } from '../../components/ui/Divider';
-import { loginSchema } from '../../utils/validators';
-import { authService } from '../../services/authService';
+import { CheckCircle2, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 
-const stagger = {
-  animate: { transition: { staggerChildren: 0.07 } }
+const C = {
+  navy:   '#0B1629', mid: '#111F38', card: '#172035',
+  border: '#1E2D45', gold: '#C9A84C', goldLt: '#E2C87A',
+  goldDim:'rgba(201,168,76,0.08)', goldBorder:'rgba(201,168,76,0.5)',
+  em:     '#0E9C78', tp: '#EDF0F7', ts: '#8896AD', tm: '#4A5A72',
 };
-const fadeUp = {
-  initial: { opacity: 0, y: 16 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.3 } }
-};
+
+function LeftPanel() {
+  return (
+    <div className="hidden md:flex" style={{
+      width:'45%', position:'relative', flexDirection:'column',
+      background:`${C.mid} url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg stroke='%231E2D45' stroke-width='0.6' stroke-opacity='0.6'%3E%3Cpath d='M0 0h40v40H0z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+      overflow:'hidden',
+    }}>
+      <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 80% 60% at 30% 0%, rgba(201,168,76,0.08), transparent 60%)', pointerEvents:'none' }} />
+      <div style={{ position:'relative', zIndex:1, padding:'28px 36px' }}>
+        <Link to="/" style={{ textDecoration:'none', display:'flex', alignItems:'center', gap:7 }}>
+          <span style={{ width:7, height:7, borderRadius:'50%', background:C.gold, display:'inline-block' }} />
+          <span style={{ fontFamily:'Lora,Georgia,serif', fontSize:20, fontWeight:600, color:C.tp }}>Contractly</span>
+        </Link>
+      </div>
+      <motion.div
+        initial={{ opacity:0, x:-20 }} animate={{ opacity:1, x:0 }} transition={{ duration:0.4, ease:'easeOut' }}
+        style={{ flex:1, display:'flex', flexDirection:'column', justifyContent:'center', padding:'0 48px 48px', position:'relative', zIndex:1 }}
+      >
+        <h2 style={{ fontFamily:'Lora,Georgia,serif', fontSize:32, fontWeight:600, color:C.tp, lineHeight:1.25, margin:'0 0 16px' }}>
+          Your contracts.<br/>Your terms.<br/><em style={{ color:C.gold, fontStyle:'italic' }}>Your protection.</em>
+        </h2>
+        <p style={{ fontFamily:'DM Sans,sans-serif', fontSize:14, color:C.ts, marginBottom:36, lineHeight:1.6 }}>
+          Join thousands of Indian freelancers closing projects with confidence.
+        </p>
+        {['Legally valid e-signatures','20+ Indian-law-ready templates','Audit trail on every contract','Free for your first 3 contracts'].map((f) => (
+          <div key={f} style={{ display:'flex', alignItems:'center', gap:10, marginBottom:14 }}>
+            <CheckCircle2 size={17} style={{ color:C.em, flexShrink:0 }} />
+            <span style={{ fontFamily:'DM Sans,sans-serif', fontSize:14, color:C.ts }}>{f}</span>
+          </div>
+        ))}
+        <div style={{ marginTop:40, display:'flex', alignItems:'center', gap:10 }}>
+          <div style={{ display:'flex' }}>
+            {[['DM','#4F46E5'],['PK','#0E9470'],['SR','#C9A84C']].map(([init,bg],i) => (
+              <div key={init} style={{ width:28, height:28, borderRadius:'50%', background:bg, border:`2px solid ${C.mid}`, marginLeft:i?-8:0, display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'DM Sans,sans-serif', fontSize:10, fontWeight:700, color:'#0B1629' }}>{init}</div>
+            ))}
+          </div>
+          <span style={{ fontFamily:'DM Sans,sans-serif', fontSize:12, color:C.tm }}>Already trusted by 2,000+ freelancers</span>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function AuthInput({ label, type='text', placeholder, icon:Icon, right, value, onChange }) {
+  return (
+    <div style={{ marginBottom:16 }}>
+      <label style={{ display:'block', fontFamily:'DM Sans,sans-serif', fontSize:12, fontWeight:500, color:C.ts, marginBottom:6 }}>{label}</label>
+      <div style={{ position:'relative' }}>
+        <Icon size={16} style={{ position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', color:C.tm, pointerEvents:'none' }} />
+        <input type={type} placeholder={placeholder} value={value} onChange={onChange}
+          style={{ width:'100%', height:44, background:C.card, border:`0.5px solid ${C.border}`, borderRadius:10, color:C.tp, fontFamily:'DM Sans,sans-serif', fontSize:14, paddingLeft:40, paddingRight: right ? 40 : 14, outline:'none', boxSizing:'border-box', transition:'border-color 150ms' }}
+          onFocus={e=>{ e.target.style.borderColor=C.goldBorder; e.target.style.boxShadow='0 0 0 3px rgba(201,168,76,0.08)'; }}
+          onBlur={e=>{ e.target.style.borderColor=C.border; e.target.style.boxShadow='none'; }}
+        />
+        {right}
+      </div>
+    </div>
+  );
+}
 
 export default function Login() {
   const navigate = useNavigate();
-  const { login } = useAuthStore();
-  const [showPass, setShowPass] = useState(false);
-  const [shake, setShake] = useState(false);
+  const login    = useAuthStore((s) => s.login);
+  const [form, setForm]   = useState({ email:'', password:'' });
+  const [showPw, setShowPw] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError]   = useState('');
 
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
-    resolver: zodResolver(loginSchema),
-  });
+  const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
-  const onSubmit = async (data) => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
     try {
-      const res = await authService.login(data);
-      login(res.data.token, res.data.user);
-      toast.success(`Welcome back, ${res.data.user?.name || 'there'}!`);
+      await login(form);
       navigate('/dashboard');
-    } catch (err) {
-      // If backend is offline, fall through to mock auth for demo purposes
-      const isNetworkErr = !err.response;
-      if (isNetworkErr) {
-        const mockUser = { id: 'demo-1', name: 'Yashi Ghosh', email: data.email, plan: 'freelancer' };
-        login('mock-token-demo', mockUser);
-        toast.success('Welcome back! (Demo mode — no backend connected)');
-        navigate('/dashboard');
-        return;
-      }
-      setShake(true);
-      setTimeout(() => setShake(false), 600);
-      toast.error(err.response?.data?.message || 'Invalid credentials. Please try again.');
+    } catch(err) {
+      setError(err.message || 'Invalid email or password');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex bg-white">
-      {/* Left Panel – Branding */}
-      <div className="hidden lg:flex flex-col justify-between w-[45%] bg-gradient-to-br from-brand-600 via-brand-500 to-brand-700 p-12 relative overflow-hidden">
-        {/* Background decoration */}
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-24 -right-24 w-96 h-96 rounded-full bg-white/5" />
-          <div className="absolute bottom-0 -left-24 w-80 h-80 rounded-full bg-white/5" />
-          <div className="absolute top-1/3 right-8 w-48 h-48 rounded-full bg-white/5" />
-        </div>
-
-        {/* Logo */}
-        <div className="flex items-center gap-2.5 relative z-10">
-          <div className="w-9 h-9 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center">
-            <Zap size={18} className="text-white" />
-          </div>
-          <span className="text-white text-serif text-2xl">Contractly</span>
-        </div>
-
-        {/* Hero text */}
-        <div className="relative z-10">
-          <h1 className="text-serif text-5xl text-white leading-tight mb-4">
-            Contracts that
-            <br />close faster.
-          </h1>
-          <p className="text-white/70 text-lg leading-relaxed mb-10">
-            The Stripe Dashboard of contract management — beautifully minimal, ruthlessly functional.
-          </p>
-
-          {/* Social proof */}
-          <div className="flex items-center gap-4">
-            <div className="flex -space-x-2">
-              {['P', 'R', 'M', 'A'].map((l, i) => (
-                <div key={i} className="w-9 h-9 rounded-full bg-white/30 border-2 border-white/50 flex items-center justify-center text-white text-xs font-semibold">
-                  {l}
-                </div>
-              ))}
-            </div>
-            <div className="text-white/80 text-sm">
-              <span className="font-semibold text-white">2,400+</span> freelancers trust Contractly
-            </div>
-          </div>
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-2 gap-4 relative z-10">
-          {[
-            { label: 'Contracts Signed', value: '18,000+' },
-            { label: 'Revenue Tracked', value: '₹24Cr+' },
-          ].map((s) => (
-            <div key={s.label} className="bg-white/10 backdrop-blur rounded-xl p-4">
-              <div className="text-white text-2xl font-bold text-serif">{s.value}</div>
-              <div className="text-white/60 text-sm mt-0.5">{s.label}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Right Panel – Form */}
-      <div className="flex-1 flex items-center justify-center p-6 lg:p-12">
+    <div style={{ display:'flex', height:'100vh', background:C.navy, overflow:'hidden' }}>
+      <LeftPanel />
+      <div style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', background:C.navy, padding:'24px 32px', overflowY:'auto' }}>
         <motion.div
-          variants={stagger}
-          initial="initial"
-          animate="animate"
-          className="w-full max-w-md"
+          initial={{ opacity:0, x:20 }} animate={{ opacity:1, x:0 }} transition={{ duration:0.4, ease:'easeOut' }}
+          style={{ width:'100%', maxWidth:420 }}
         >
           {/* Mobile logo */}
-          <motion.div variants={fadeUp} className="flex items-center gap-2 mb-8 lg:hidden">
-            <div className="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center">
-              <Zap size={16} className="text-white" />
-            </div>
-            <span className="text-serif text-xl text-gray-900">Contractly</span>
-          </motion.div>
+          <div className="md:hidden" style={{ display:'flex', alignItems:'center', gap:7, marginBottom:32 }}>
+            <span style={{ width:7, height:7, borderRadius:'50%', background:C.gold, display:'inline-block' }} />
+            <span style={{ fontFamily:'Lora,Georgia,serif', fontSize:20, fontWeight:600, color:C.tp }}>Contractly</span>
+          </div>
 
-          <motion.div variants={fadeUp}>
-            <h2 className="text-3xl font-semibold text-gray-900 mb-1">Welcome back</h2>
-            <p className="text-gray-500 text-sm">Sign in to manage your contracts</p>
-          </motion.div>
+          <h1 style={{ fontFamily:'Lora,Georgia,serif', fontSize:28, fontWeight:600, color:C.tp, margin:'0 0 6px' }}>Welcome back</h1>
+          <p style={{ fontFamily:'DM Sans,sans-serif', fontSize:14, color:C.ts, margin:'0 0 28px' }}>Sign in to your Contractly account</p>
 
-          <motion.form
-            variants={shake ? { animate: { x: [-8, 8, -8, 8, 0], transition: { duration: 0.4 } } } : stagger}
-            onSubmit={handleSubmit(onSubmit)}
-            className="mt-8 space-y-4"
-          >
-            <motion.div variants={fadeUp}>
-              <Input
-                label="Email address"
-                type="email"
-                placeholder="you@example.com"
-                icon={<Mail size={15} />}
-                error={errors.email?.message}
-                {...register('email')}
-              />
-            </motion.div>
+          {error && (
+            <div style={{ background:'rgba(239,68,68,0.1)', border:'0.5px solid rgba(239,68,68,0.3)', borderRadius:8, padding:'10px 14px', marginBottom:16, fontFamily:'DM Sans,sans-serif', fontSize:13, color:'#F87171' }}>{error}</div>
+          )}
 
-            <motion.div variants={fadeUp}>
-              <Input
-                label="Password"
-                type={showPass ? 'text' : 'password'}
-                placeholder="••••••••"
-                icon={<Lock size={15} />}
-                iconRight={
-                  <button type="button" onClick={() => setShowPass((p) => !p)} className="text-gray-400 hover:text-gray-600">
-                    {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
-                  </button>
-                }
-                error={errors.password?.message}
-                {...register('password')}
-              />
-              <div className="flex justify-end mt-1">
-                <button type="button" className="text-xs text-brand-500 hover:text-brand-700 transition-colors">
-                  Forgot password?
+          <form onSubmit={handleSubmit}>
+            <AuthInput label="Email address" type="email" placeholder="you@example.com" icon={Mail} value={form.email} onChange={set('email')} />
+
+            {/* Password + forgot */}
+            <div style={{ marginBottom:20 }}>
+              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:6 }}>
+                <label style={{ fontFamily:'DM Sans,sans-serif', fontSize:12, fontWeight:500, color:C.ts }}>Password</label>
+                <a href="#" style={{ fontFamily:'DM Sans,sans-serif', fontSize:12, color:C.gold, textDecoration:'none' }}>Forgot password?</a>
+              </div>
+              <div style={{ position:'relative' }}>
+                <Lock size={16} style={{ position:'absolute', left:12, top:'50%', transform:'translateY(-50%)', color:C.tm, pointerEvents:'none' }} />
+                <input type={showPw ? 'text' : 'password'} placeholder="••••••••" value={form.password} onChange={set('password')}
+                  style={{ width:'100%', height:44, background:C.card, border:`0.5px solid ${C.border}`, borderRadius:10, color:C.tp, fontFamily:'DM Sans,sans-serif', fontSize:14, paddingLeft:40, paddingRight:40, outline:'none', boxSizing:'border-box', transition:'border-color 150ms' }}
+                  onFocus={e=>{ e.target.style.borderColor=C.goldBorder; e.target.style.boxShadow='0 0 0 3px rgba(201,168,76,0.08)'; }}
+                  onBlur={e=>{ e.target.style.borderColor=C.border; e.target.style.boxShadow='none'; }}
+                />
+                <button type="button" onClick={() => setShowPw(!showPw)}
+                  style={{ position:'absolute', right:12, top:'50%', transform:'translateY(-50%)', background:'none', border:'none', cursor:'pointer', color:C.tm, display:'flex', padding:0 }}>
+                  {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
               </div>
-            </motion.div>
+            </div>
 
-            <motion.div variants={fadeUp}>
-              <Button
-                type="submit"
-                variant="primary"
-                size="lg"
-                fullWidth
-                loading={isSubmitting}
-                className="mt-2 group"
-              >
-                Sign In
-                <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
-              </Button>
-            </motion.div>
-          </motion.form>
-
-          <motion.div variants={fadeUp} className="mt-6 text-center text-sm text-gray-500">
-            Don't have an account?{' '}
-            <Link to="/register" className="text-brand-500 hover:text-brand-700 font-medium transition-colors">
-              Register →
-            </Link>
-          </motion.div>
-
-          <motion.div variants={fadeUp}>
-            <Divider label="or" className="my-6" />
-            <button
-              type="button"
-              className="w-full flex items-center justify-center gap-3 px-4 py-2.5 rounded-lg border border-gray-200 bg-white text-sm text-gray-700 font-medium hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm"
+            <button type="submit" disabled={loading}
+              style={{ width:'100%', height:44, background: loading ? C.ts : C.gold, color:C.navy, fontFamily:'DM Sans,sans-serif', fontSize:15, fontWeight:600, border:'none', borderRadius:10, cursor: loading ? 'not-allowed' : 'pointer', transition:'all 150ms', marginBottom:20 }}
+              onMouseEnter={e=>{ if(!loading){ e.currentTarget.style.background=C.goldLt; e.currentTarget.style.transform='translateY(-1px)'; }}}
+              onMouseLeave={e=>{ e.currentTarget.style.background=loading?C.ts:C.gold; e.currentTarget.style.transform='translateY(0)'; }}
+              onMouseDown={e=>e.currentTarget.style.transform='scale(0.99)'}
             >
-              <svg className="w-5 h-5" viewBox="0 0 24 24">
-                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/>
-                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-              </svg>
-              Continue with Google
+              {loading ? 'Signing in…' : 'Sign in →'}
             </button>
-          </motion.div>
+
+            <p style={{ fontFamily:'DM Sans,sans-serif', fontSize:13, color:C.ts, textAlign:'center', margin:0 }}>
+              Don't have an account?{' '}
+              <Link to="/register" style={{ color:C.gold, textDecoration:'none', fontWeight:500 }}>Create one free →</Link>
+            </p>
+          </form>
         </motion.div>
       </div>
     </div>
