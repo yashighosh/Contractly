@@ -378,3 +378,100 @@ pre {
   background-color: var(--bg-page);
   min-height: 100%;
 }
+
+/* ============================================================
+   CONTRACT EDITOR — Always light paper surface
+   The .contract-paper class and inline style={{ background:'#FFF' }}
+   together guarantee the canvas stays white in all themes.
+   ============================================================ */
+
+.contract-paper .ProseMirror {
+  background: #FFFFFF !important;
+  color: #1A202C !important;
+  outline: none;
+  min-height: 600px;
+  font-family: 'Georgia', Georgia, serif;
+  font-size: 15px;
+  line-height: 1.8;
+  caret-color: #C9A84C;
+}
+
+.contract-paper .ProseMirror h1 {
+  font-family: 'Lora', Georgia, serif !important;
+  font-size: 26px !important;
+  font-weight: 700 !important;
+  color: #0F172A !important;
+  margin: 0 0 16px !important;
+  border-bottom: 2px solid #E2E8F0;
+  padding-bottom: 12px;
+}
+
+.contract-paper .ProseMirror h2 {
+  font-family: 'Lora', Georgia, serif !important;
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  color: #1E293B !important;
+  margin: 32px 0 10px !important;
+  border-bottom: none !important;
+}
+
+.contract-paper .ProseMirror p {
+  color: #374151 !important;
+  margin-bottom: 12px !important;
+}
+
+.contract-paper .ProseMirror hr {
+  border: none !important;
+  border-top: 1px solid #E2E8F0 !important;
+  margin: 20px 0 !important;
+}
+
+.contract-paper .ProseMirror .variable-highlight,
+.contract-paper .ProseMirror mark {
+  background: rgba(201,168,76,0.15) !important;
+  color: #92600A !important;
+  border-radius: 3px;
+  padding: 1px 4px;
+  font-style: normal;
+}
+
+.contract-paper .ProseMirror ::selection {
+  background: rgba(201,168,76,0.25);
+}
+
+/* ── Editor Toolbar (light surface inside paper) ── */
+.editor-toolbar {
+  background: #F8F7F4 !important;
+  border-bottom: 1px solid #E2E8F0 !important;
+  padding: 8px 12px;
+  display: flex;
+  gap: 2px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.editor-toolbar-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: none;
+  color: #64748B;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s, color 0.12s;
+  font-size: 0;  /* hide any text, show only icon */
+}
+
+.editor-toolbar-btn:hover {
+  background: #E2E8F0;
+  color: #1A202C;
+}
+
+.editor-toolbar-btn.is-active {
+  background: rgba(201,168,76,0.15);
+  color: #92600A;
+}
+

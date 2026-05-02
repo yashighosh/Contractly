@@ -57,10 +57,7 @@ function ToolbarButton({ active, onClick, title, children }) {
       type="button"
       onClick={onClick}
       title={title}
-      className={cn(
-        'p-1.5 rounded-md text-sm transition-colors',
-        active ? 'bg-brand-100 text-brand-600' : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
-      )}
+      className={cn('editor-toolbar-btn', active && 'is-active')}
     >
       {children}
     </button>
@@ -160,160 +157,232 @@ export default function ContractNew() {
   };
 
   return (
-    <motion.div variants={pageVariants} initial="initial" animate="animate" className="h-full flex flex-col bg-gray-50">
-      {/* Topbar */}
-      <div className="h-14 bg-white border-b border-gray-200 flex items-center gap-3 px-4 shrink-0">
-        <button onClick={() => navigate('/contracts')} className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-900 transition-colors mr-1">
-          <ArrowLeft size={16} /> Contracts
-        </button>
-        <div className="w-px h-5 bg-gray-200" />
+    <motion.div variants={pageVariants} initial="initial" animate="animate"
+      style={{ height: '100%', display: 'flex', flexDirection: 'column', background: '#0F1A2E' }}>
 
-        {/* Editable title */}
-        {editingTitle ? (
-          <input
-            autoFocus
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            onBlur={() => setEditingTitle(false)}
-            onKeyDown={(e) => e.key === 'Enter' && setEditingTitle(false)}
-            className="text-sm font-medium text-gray-900 bg-transparent border-b border-brand-400 outline-none min-w-[200px] max-w-xs"
-          />
-        ) : (
-          <button onClick={() => setEditingTitle(true)} className="text-sm font-semibold text-gray-900 hover:text-brand-600 transition-colors truncate max-w-xs">
-            {title}
+      {/* ── Sub-topbar (Fix 5) ── */}
+      <div style={{
+        height: 52, background: '#111F38', borderBottom: '0.5px solid #1E2D45',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '0 20px', flexShrink: 0,
+      }}>
+        {/* Left: breadcrumb */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button
+            onClick={() => navigate('/contracts')}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, color: '#8896AD', fontSize: 13 }}
+            onMouseEnter={e => e.currentTarget.style.color = '#EDF0F7'}
+            onMouseLeave={e => e.currentTarget.style.color = '#8896AD'}
+          >
+            <ArrowLeft size={14} /> Contracts
           </button>
-        )}
+          <span style={{ color: '#4A5A72', fontSize: 13 }}>/</span>
+          {editingTitle ? (
+            <input
+              autoFocus
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              onBlur={() => setEditingTitle(false)}
+              onKeyDown={(e) => e.key === 'Enter' && setEditingTitle(false)}
+              style={{
+                background: 'transparent', border: 'none', borderBottom: '1px solid rgba(201,168,76,0.5)',
+                color: '#EDF0F7', fontSize: 13, fontWeight: 500, outline: 'none', minWidth: 180,
+                fontFamily: 'DM Sans, sans-serif',
+              }}
+            />
+          ) : (
+            <button
+              onClick={() => setEditingTitle(true)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#EDF0F7', fontSize: 13, fontWeight: 500 }}
+            >
+              {title}
+            </button>
+          )}
+        </div>
 
-        <div className="flex-1" />
-
-        <Button variant="ghost" size="sm" onClick={() => setShowPreview(!showPreview)}>
-          <Eye size={15} /> {showPreview ? 'Editor' : 'Preview'}
-        </Button>
-        <Button
-          variant="secondary"
-          size="sm"
-          icon={<Save size={14} />}
-          loading={isSaving}
-          onClick={handleSaveDraft}
-        >
-          {savedStatus === 'saved' ? 'Saved ✓' : 'Save Draft'}
-        </Button>
-        <Button variant="primary" size="sm" icon={<Send size={14} />} onClick={() => setShowSendModal(true)}>
-          Send to Client
-        </Button>
+        {/* Right: actions */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <button
+            onClick={() => setShowPreview(!showPreview)}
+            style={{
+              background: 'none', border: '0.5px solid #1E2D45', borderRadius: 8,
+              color: '#8896AD', fontSize: 13, padding: '5px 12px', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'DM Sans, sans-serif',
+            }}
+            onMouseEnter={e => { e.currentTarget.style.color = '#EDF0F7'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)'; }}
+            onMouseLeave={e => { e.currentTarget.style.color = '#8896AD'; e.currentTarget.style.borderColor = '#1E2D45'; }}
+          >
+            <Eye size={13} /> {showPreview ? 'Editor' : 'Preview'}
+          </button>
+          <button
+            onClick={handleSaveDraft}
+            disabled={isSaving}
+            style={{
+              background: '#172035', border: '0.5px solid #1E2D45', borderRadius: 8,
+              color: '#EDF0F7', fontSize: 13, padding: '5px 12px', cursor: 'pointer',
+              display: 'flex', alignItems: 'center', gap: 5, fontFamily: 'DM Sans, sans-serif',
+              opacity: isSaving ? 0.7 : 1,
+            }}
+          >
+            <Save size={13} /> {savedStatus === 'saved' ? 'Saved ✓' : 'Save Draft'}
+          </button>
+          <button
+            onClick={() => setShowSendModal(true)}
+            style={{
+              background: '#C9A84C', border: 'none', borderRadius: 8,
+              color: '#0B1629', fontSize: 13, fontWeight: 600, padding: '5px 14px',
+              cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5,
+              fontFamily: 'DM Sans, sans-serif',
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = '#E2C87A'}
+            onMouseLeave={e => e.currentTarget.style.background = '#C9A84C'}
+          >
+            <Send size={13} /> Send to Client
+          </button>
+        </div>
       </div>
 
-      {/* Main editor area */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Left: Outline panel */}
+      {/* ── Body (3-column) ── */}
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+
+        {/* Fix 4 — Left outline panel */}
         {showOutline && !showPreview && (
-          <div className="w-52 bg-white border-r border-gray-200 p-4 overflow-y-auto shrink-0 hidden lg:block">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Outline</span>
-              <button onClick={() => setShowOutline(false)} className="text-gray-400 hover:text-gray-600 text-xs">×</button>
+          <div className="hidden lg:flex flex-col" style={{
+            width: 220, flexShrink: 0, background: '#111F38',
+            borderRight: '0.5px solid #1E2D45', overflowY: 'auto',
+          }}>
+            <div style={{ padding: '14px 16px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#4A5A72' }}>Outline</span>
+              <button onClick={() => setShowOutline(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#4A5A72', fontSize: 16, lineHeight: 1 }}
+                onMouseEnter={e => e.currentTarget.style.color = '#8896AD'}
+                onMouseLeave={e => e.currentTarget.style.color = '#4A5A72'}
+              >×</button>
             </div>
-            {['Scope of Work', 'Payment Terms', 'Timeline', 'Confidentiality', 'Termination'].map((c) => (
-              <button key={c} className="block w-full text-left text-xs text-gray-600 hover:text-brand-600 py-1.5 px-2 rounded-md hover:bg-brand-50 transition-colors truncate">
-                {c}
-              </button>
-            ))}
-            <div className="mt-4 pt-4 border-t border-gray-100">
-              <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Clause Library</div>
+            <div style={{ padding: '0 8px' }}>
+              {['Scope of Work', 'Payment Terms', 'Timeline', 'Confidentiality', 'Termination'].map((c) => (
+                <button key={c}
+                  style={{ display: 'block', width: '100%', textAlign: 'left', fontSize: 13, color: '#8896AD', background: 'none', border: 'none', cursor: 'pointer', padding: '5px 8px', borderRadius: 6 }}
+                  onMouseEnter={e => { e.currentTarget.style.color = '#C9A84C'; e.currentTarget.style.background = 'rgba(201,168,76,0.06)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = '#8896AD'; e.currentTarget.style.background = 'none'; }}
+                >{c}</button>
+              ))}
+            </div>
+            <div style={{ margin: '12px 16px 8px', borderTop: '0.5px solid #1E2D45', paddingTop: 12 }}>
+              <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#4A5A72' }}>Clause Library</span>
+            </div>
+            <div style={{ padding: '0 8px 12px' }}>
               {CLAUSE_TEMPLATES.map((cl) => (
                 <button
                   key={cl.title}
                   onClick={() => editor?.chain().focus().insertContent(`<p>${cl.content}</p>`).run()}
-                  className="block w-full text-left text-xs text-gray-600 hover:text-brand-600 py-1.5 px-2 rounded-md hover:bg-brand-50 transition-colors mb-0.5 truncate"
-                >
-                  + {cl.title}
-                </button>
+                  style={{ display: 'block', width: '100%', textAlign: 'left', fontSize: 12, color: '#4A5A72', background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px', borderRadius: 6 }}
+                  onMouseEnter={e => { e.currentTarget.style.color = '#C9A84C'; e.currentTarget.style.background = 'rgba(201,168,76,0.06)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = '#4A5A72'; e.currentTarget.style.background = 'none'; }}
+                >+ {cl.title}</button>
               ))}
             </div>
           </div>
         )}
 
-        {/* Center: Editor */}
-        <div className="flex-1 overflow-y-auto">
-          <div className="max-w-3xl mx-auto px-6 py-10">
-            {showPreview ? (
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8">
-                <div className="text-xs text-amber-600 bg-amber-50 border border-amber-100 rounded-lg px-3 py-2 mb-6 flex items-center gap-2">
-                  <Eye size={13} /> This is how your client will see the contract
-                </div>
-                <div
-                  className="ProseMirror"
-                  dangerouslySetInnerHTML={{ __html: getPreviewContent() }}
-                />
+        {/* Fix 1 — Center editor area — ALWAYS dark shell, white paper inside */}
+        <div style={{ flex: 1, overflowY: 'auto', background: '#0F1A2E', padding: '40px 32px' }}>
+          {showPreview ? (
+            <div
+              data-theme="light"
+              className="contract-paper mx-auto"
+              style={{
+                maxWidth: 760, background: '#FFFFFF', color: '#1A202C',
+                borderRadius: 10, boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+                padding: '48px 64px',
+              }}
+            >
+              <div style={{ fontSize: 12, color: '#92600A', background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: 8, padding: '8px 14px', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <Eye size={13} /> This is how your client will see the contract
               </div>
-            ) : (
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8 min-h-[600px]">
-                {/* Floating formatting toolbar */}
-                {editor && (
-                  <div className="flex items-center gap-0.5 mb-4 pb-3 border-b border-gray-100 flex-wrap">
-                    <ToolbarButton active={editor.isActive('bold')} onClick={() => editor.chain().focus().toggleBold().run()} title="Bold">
-                      <Bold size={14} />
-                    </ToolbarButton>
-                    <ToolbarButton active={editor.isActive('italic')} onClick={() => editor.chain().focus().toggleItalic().run()} title="Italic">
-                      <Italic size={14} />
-                    </ToolbarButton>
-                    <ToolbarButton active={editor.isActive('underline')} onClick={() => editor.chain().focus().toggleUnderline().run()} title="Underline">
-                      <UnderlineIcon size={14} />
-                    </ToolbarButton>
-                    <div className="w-px h-4 bg-gray-200 mx-0.5" />
-                    <ToolbarButton active={editor.isActive('heading', { level: 1 })} onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} title="Heading 1">
-                      <Heading1 size={14} />
-                    </ToolbarButton>
-                    <ToolbarButton active={editor.isActive('heading', { level: 2 })} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} title="Heading 2">
-                      <Heading2 size={14} />
-                    </ToolbarButton>
-                    <div className="w-px h-4 bg-gray-200 mx-0.5" />
-                    <ToolbarButton active={editor.isActive('bulletList')} onClick={() => editor.chain().focus().toggleBulletList().run()} title="Bullet list">
-                      <List size={14} />
-                    </ToolbarButton>
-                    <ToolbarButton active={editor.isActive('orderedList')} onClick={() => editor.chain().focus().toggleOrderedList().run()} title="Numbered list">
-                      <ListOrdered size={14} />
-                    </ToolbarButton>
-                    <div className="w-px h-4 bg-gray-200 mx-0.5" />
-                    <ToolbarButton active={editor.isActive('highlight')} onClick={() => editor.chain().focus().toggleHighlight().run()} title="Highlight">
-                      <span className="text-xs font-bold bg-yellow-200 px-0.5 rounded">H</span>
-                    </ToolbarButton>
-                    <ToolbarButton active={false} onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Divider">
-                      <Minus size={14} />
-                    </ToolbarButton>
-                  </div>
-                )}
+              <div className="ProseMirror" dangerouslySetInnerHTML={{ __html: getPreviewContent() }} />
+            </div>
+          ) : (
+            // Fix 2 — Paper div with INLINE style (beats Tailwind dark variants)
+            <div
+              className="contract-paper mx-auto"
+              style={{
+                maxWidth: 760,
+                background: '#FFFFFF',   // inline style always wins over dark mode
+                color: '#1A202C',
+                borderRadius: 10,
+                boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
+                overflow: 'hidden',
+              }}
+            >
+              {/* Fix 6 — Toolbar: light surface, inside paper */}
+              {editor && (
+                <div className="editor-toolbar">
+                  <ToolbarButton active={editor.isActive('bold')} onClick={() => editor.chain().focus().toggleBold().run()} title="Bold"><Bold size={14} /></ToolbarButton>
+                  <ToolbarButton active={editor.isActive('italic')} onClick={() => editor.chain().focus().toggleItalic().run()} title="Italic"><Italic size={14} /></ToolbarButton>
+                  <ToolbarButton active={editor.isActive('underline')} onClick={() => editor.chain().focus().toggleUnderline().run()} title="Underline"><UnderlineIcon size={14} /></ToolbarButton>
+                  <div style={{ width: 1, height: 16, background: '#E2E8F0', margin: '0 4px' }} />
+                  <ToolbarButton active={editor.isActive('heading', { level: 1 })} onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()} title="H1"><Heading1 size={14} /></ToolbarButton>
+                  <ToolbarButton active={editor.isActive('heading', { level: 2 })} onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} title="H2"><Heading2 size={14} /></ToolbarButton>
+                  <div style={{ width: 1, height: 16, background: '#E2E8F0', margin: '0 4px' }} />
+                  <ToolbarButton active={editor.isActive('bulletList')} onClick={() => editor.chain().focus().toggleBulletList().run()} title="Bullet list"><List size={14} /></ToolbarButton>
+                  <ToolbarButton active={editor.isActive('orderedList')} onClick={() => editor.chain().focus().toggleOrderedList().run()} title="Numbered list"><ListOrdered size={14} /></ToolbarButton>
+                  <ToolbarButton active={editor.isActive('highlight')} onClick={() => editor.chain().focus().toggleHighlight().run()} title="Highlight"><span style={{ fontSize: 11, fontWeight: 700, background: '#FEF08A', padding: '0 2px', borderRadius: 2 }}>H</span></ToolbarButton>
+                  <ToolbarButton active={false} onClick={() => editor.chain().focus().setHorizontalRule().run()} title="Divider"><Minus size={14} /></ToolbarButton>
+                </div>
+              )}
+              {/* Editor content */}
+              <div style={{ padding: '48px 56px' }}>
                 <EditorContent editor={editor} />
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
-        {/* Right: Variables panel */}
+        {/* Fix 3 — Right Variables panel */}
         {showVarsPanel && !showPreview && (
-          <div className="w-64 bg-white border-l border-gray-200 p-4 overflow-y-auto shrink-0 hidden xl:block">
-            <div className="flex items-center justify-between mb-4">
-              <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Variables</span>
-              <button onClick={() => setShowVarsPanel(false)} className="text-gray-400 hover:text-gray-600 text-xs">×</button>
+          <div className="hidden xl:flex flex-col" style={{
+            width: 260, flexShrink: 0, background: '#111F38',
+            borderLeft: '0.5px solid #1E2D45', overflowY: 'auto',
+          }}>
+            <div style={{ padding: '14px 16px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '0.5px solid #1E2D45' }}>
+              <span style={{ fontSize: 11, fontWeight: 500, letterSpacing: '0.08em', textTransform: 'uppercase', color: '#4A5A72' }}>Variables</span>
+              <button onClick={() => setShowVarsPanel(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#4A5A72', fontSize: 18, lineHeight: 1 }}
+                onMouseEnter={e => e.currentTarget.style.color = '#8896AD'}
+                onMouseLeave={e => e.currentTarget.style.color = '#4A5A72'}
+              >×</button>
             </div>
-            <div className="space-y-3">
+            <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: 18 }}>
               {VARIABLES.map(({ key, label, placeholder }) => (
                 <div key={key}>
-                  <label className="text-xs font-medium text-gray-600 block mb-1">{label}</label>
-                  <div className="flex gap-1">
+                  <label style={{ fontSize: 12, color: '#8896AD', marginBottom: 6, display: 'block' }}>{label}</label>
+                  <div style={{ display: 'flex', gap: 6 }}>
                     <input
                       type="text"
                       value={varValues[key] || ''}
                       onChange={(e) => setVarValues((prev) => ({ ...prev, [key]: e.target.value }))}
                       placeholder={placeholder}
-                      className="flex-1 px-2.5 py-1.5 text-xs border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-brand-400 focus:border-brand-400"
+                      style={{
+                        flex: 1, height: 36,
+                        background: '#172035', border: '0.5px solid #1E2D45', borderRadius: 8,
+                        color: '#EDF0F7', fontSize: 13, padding: '0 10px', outline: 'none',
+                        fontFamily: 'DM Sans, system-ui, sans-serif',
+                      }}
+                      onFocus={e => e.target.style.borderColor = 'rgba(201,168,76,0.5)'}
+                      onBlur={e => e.target.style.borderColor = '#1E2D45'}
                     />
                     <button
                       onClick={() => insertVariable(key)}
                       title="Insert into document"
-                      className="px-2 py-1.5 text-brand-500 hover:bg-brand-50 rounded-lg transition-colors border border-brand-200 text-xs"
-                    >
-                      +
-                    </button>
+                      style={{
+                        width: 32, height: 36, background: 'rgba(201,168,76,0.1)',
+                        border: '0.5px solid rgba(201,168,76,0.3)', borderRadius: 8,
+                        color: '#C9A84C', fontSize: 16, cursor: 'pointer', flexShrink: 0,
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(201,168,76,0.2)'}
+                      onMouseLeave={e => e.currentTarget.style.background = 'rgba(201,168,76,0.1)'}
+                    >+</button>
                   </div>
                 </div>
               ))}
