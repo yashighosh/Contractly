@@ -1,5 +1,6 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { PageTransition } from '../components/ui/PageTransition';
 import {
   ArrowLeft, Download, Send, Copy, RefreshCw, FileText,
   CheckCircle, Clock, Eye, AlertTriangle, ExternalLink
