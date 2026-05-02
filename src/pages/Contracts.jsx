@@ -14,6 +14,9 @@ import { useAuthStore } from '../store/authStore';
 import { useDataStore } from '../store/dataStore';
 import { cn } from '../utils/cn';
 
+/* Stable fallback — never inline `?? []` in a Zustand selector */
+const EMPTY_ARR = [];
+
 const STATUSES = ['all', 'draft', 'sent', 'viewed', 'signed', 'expired'];
 
 function EmptyContracts({ onNew, filtered }) {
@@ -44,7 +47,7 @@ export default function Contracts() {
   const { user }  = useAuthStore();
   const userId    = user?.id;
 
-  const contracts      = useDataStore((s) => s.getContracts(userId));
+  const contracts      = useDataStore((s) => s.users[userId]?.contracts ?? EMPTY_ARR);
   const deleteContract = useDataStore((s) => s.deleteContract);
 
   const [search, setSearch]     = useState('');

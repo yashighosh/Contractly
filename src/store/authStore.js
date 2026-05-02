@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { useDataStore } from './dataStore';
 
 /* ── Mock auth helpers ──────────────────────────────────────
    No backend required. Stores user in localStorage.
@@ -29,6 +30,9 @@ export const useAuthStore = create(
         const user  = { id: `user_${Date.now()}`, name: name.trim(), email: email.trim().toLowerCase(), role };
         const token = makeMockToken(email);
         set({ user, token, isAuthenticated: true });
+
+        // Seed demo data for yashi account on first register
+        useDataStore.getState().seedDemoIfNeeded(user.id, user.email);
       },
 
       /* ── login({ email, password }) ── */
@@ -43,6 +47,8 @@ export const useAuthStore = create(
           // Re-authenticate existing user
           const token = makeMockToken(email);
           set({ token, isAuthenticated: true });
+          // Seed demo data if needed (e.g. after data was cleared)
+          useDataStore.getState().seedDemoIfNeeded(stored.id, stored.email);
           return;
         }
 
@@ -50,6 +56,9 @@ export const useAuthStore = create(
         const user  = { id: `user_${Date.now()}`, name: email.split('@')[0], email: email.trim().toLowerCase(), role: 'freelancer' };
         const token = makeMockToken(email);
         set({ user, token, isAuthenticated: true });
+
+        // Seed demo data for yashi account
+        useDataStore.getState().seedDemoIfNeeded(user.id, user.email);
       },
 
       /* ── logout ── */
@@ -64,6 +73,7 @@ export const useAuthStore = create(
     }),
     {
       name: 'contractly-auth',
+      version: 1,
       partialize: (state) => ({
         token:           state.token,
         user:            state.user,

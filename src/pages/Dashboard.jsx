@@ -1,6 +1,10 @@
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useEffect, useRef } from 'react';
+
+/* Stable empty arrays — NEVER use `?? []` inline inside a Zustand selector;
+   it creates a new reference every render and causes an infinite re-render loop. */
+const EMPTY_ARR = [];
 import {
   FileText, IndianRupee, Clock, PenLine,
   TrendingUp, TrendingDown, Plus, ArrowRight,
@@ -107,8 +111,8 @@ export default function Dashboard() {
   const navigate  = useNavigate();
   const userId    = user?.id;
 
-  const contracts  = useDataStore((s) => s.getContracts(userId));
-  const activity   = useDataStore((s) => s.getActivity(userId));
+  const contracts  = useDataStore((s) => s.users[userId]?.contracts ?? EMPTY_ARR);
+  const activity   = useDataStore((s) => s.users[userId]?.activity  ?? EMPTY_ARR);
 
   const hour     = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';

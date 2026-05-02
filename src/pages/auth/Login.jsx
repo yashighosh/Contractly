@@ -81,6 +81,8 @@ export default function Login() {
 
   const set = (k) => (e) => setForm((f) => ({ ...f, [k]: e.target.value }));
 
+  const fillDemo = () => setForm({ email: 'yashi@contractly.in', password: 'demo123' });
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -115,6 +117,19 @@ export default function Login() {
           {error && (
             <div style={{ background:'rgba(239,68,68,0.1)', border:'0.5px solid rgba(239,68,68,0.3)', borderRadius:8, padding:'10px 14px', marginBottom:16, fontFamily:'DM Sans,sans-serif', fontSize:13, color:'#F87171' }}>{error}</div>
           )}
+
+          {/* Demo account quick-fill */}
+          <button type="button" onClick={fillDemo} style={{
+            width:'100%', marginBottom:16, padding:'10px 14px',
+            background:'rgba(201,168,76,0.08)', border:'0.5px solid rgba(201,168,76,0.35)',
+            borderRadius:10, cursor:'pointer', textAlign:'left',
+            display:'flex', alignItems:'center', justifyContent:'space-between', gap:8,
+          }}>
+            <span style={{ fontFamily:'DM Sans,sans-serif', fontSize:12, color:'#8896AD' }}>
+              🎯 <strong style={{ color:'#C9A84C' }}>Demo account</strong> — click to fill
+            </span>
+            <span style={{ fontFamily:'monospace', fontSize:11, color:'#4A5A72' }}>yashi@contractly.in</span>
+          </button>
 
           <form onSubmit={handleSubmit}>
             <AuthInput label="Email address" type="email" placeholder="you@example.com" icon={Mail} value={form.email} onChange={set('email')} />

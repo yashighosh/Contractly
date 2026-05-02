@@ -3,11 +3,18 @@
  *
  * All data (contracts, clients, templates) is keyed by userId.
  * New users start with completely empty state.
+ * The demo account (yashi@contractly.in) is auto-seeded with rich data on first load.
  * Persisted to localStorage under 'contractly-data'.
  */
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import {
+  YASHI_SEED_CONTRACTS,
+  YASHI_SEED_CLIENTS,
+  YASHI_SEED_ACTIVITY,
+  DEMO_EMAIL,
+} from './seedData';
 
 /* ── empty slate for a brand-new user ── */
 function emptyUserData() {
@@ -42,7 +49,35 @@ export const useDataStore = create(
     (set, get) => ({
       users: {}, // { [userId]: { contracts, clients, templates, activity } }
 
-      /* ── contracts ── */
+      /* ── Seed demo data for yashi on first load ── */
+      seedDemoIfNeeded: (userId, email) => {
+        const state = get();
+        // Only seed if this userId has no data yet AND email matches demo account
+        if (
+          email?.toLowerCase() === DEMO_EMAIL &&
+          !state.users[userId]
+        ) {
+          set((s) => ({
+            users: {
+              ...s.users,
+              [userId]: {
+                contracts: YASHI_SEED_CONTRACTS,
+                clients:   YASHI_SEED_CLIENTS,
+                templates: [],
+                activity:  YASHI_SEED_ACTIVITY,
+                _seeded:   true,
+              },
+            },
+          }));
+        }
+      },
+
+      /* ── contracts ──
+         NOTE: Do NOT call getContracts(userId) inside a useDataStore() selector —
+         it uses get() and returns a new array reference every call, causing an
+         infinite re-render loop. Select state directly instead:
+           useDataStore((s) => s.users[userId]?.contracts ?? EMPTY_ARR)
+      */
       getContracts: (userId) => getUserData(get(), userId).contracts,
 
       addContract: (userId, contract) =>
