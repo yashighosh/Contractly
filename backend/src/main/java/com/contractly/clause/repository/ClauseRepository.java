@@ -84,4 +84,35 @@ public class ClauseRepository {
         jdbc.update("DELETE FROM clauses WHERE id = :id AND user_id = :userId",
                 new MapSqlParameterSource().addValue("id", id).addValue("userId", userId));
     }
+
+    public void attachClauseToContract(Long contractId, Long clauseId, int sortOrder) {
+        String sql = """
+                INSERT INTO contract_clauses (contract_id, clause_id, sort_order)
+                VALUES (:contractId, :clauseId, :sortOrder)
+                """;
+        var params = new MapSqlParameterSource()
+                .addValue("contractId", contractId)
+                .addValue("clauseId", clauseId)
+                .addValue("sortOrder", sortOrder);
+        jdbc.update(sql, params);
+    }
+
+    public boolean isClauseAttached(Long contractId, Long clauseId) {
+        String sql = "SELECT COUNT(1) FROM contract_clauses WHERE contract_id = :contractId AND clause_id = :clauseId";
+        var params = new MapSqlParameterSource()
+                .addValue("contractId", contractId)
+                .addValue("clauseId", clauseId);
+        Integer count = jdbc.queryForObject(sql, params, Integer.class);
+        return count != null && count > 0;
+    }
+
+    public List<Clause> findByContractId(Long contractId) {
+        String sql = """
+                SELECT c.* FROM clauses c
+                JOIN contract_clauses cc ON c.id = cc.clause_id
+                WHERE cc.contract_id = :contractId
+                ORDER BY cc.sort_order ASC
+                """;
+        return jdbc.query(sql, new MapSqlParameterSource("contractId", contractId), ROW_MAPPER);
+    }
 }
