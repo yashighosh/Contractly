@@ -28,13 +28,14 @@ public class SignatureRepository {
             .signatureData(rs.getString("signature_data"))
             .ipAddress(rs.getString("ip_address"))
             .userAgent(rs.getString("user_agent"))
+            .documentHash(rs.getString("document_hash"))
             .signedAt(rs.getTimestamp("signed_at").toLocalDateTime())
             .build();
 
     public SignatureRecord save(SignatureRecord record) {
         String sql = """
-                INSERT INTO signature_records (contract_id, signer_name, signer_email, signature_data, ip_address, user_agent)
-                VALUES (:contractId, :signerName, :signerEmail, :signatureData, :ipAddress, :userAgent)
+                INSERT INTO signature_records (contract_id, signer_name, signer_email, signature_data, ip_address, user_agent, document_hash)
+                VALUES (:contractId, :signerName, :signerEmail, :signatureData, :ipAddress, :userAgent, :documentHash)
                 """;
         var params = new MapSqlParameterSource()
                 .addValue("contractId", record.getContractId())
@@ -42,7 +43,8 @@ public class SignatureRepository {
                 .addValue("signerEmail", record.getSignerEmail())
                 .addValue("signatureData", record.getSignatureData())
                 .addValue("ipAddress", record.getIpAddress())
-                .addValue("userAgent", record.getUserAgent());
+                .addValue("userAgent", record.getUserAgent())
+                .addValue("documentHash", record.getDocumentHash());
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbc.update(sql, params, keyHolder);
