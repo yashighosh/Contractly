@@ -21,6 +21,7 @@
         <java.version>17</java.version>
         <jjwt.version>0.12.6</jjwt.version>
         <itext.version>8.0.5</itext.version>
+        <html2pdf.version>5.0.5</html2pdf.version>
     </properties>
 
     <dependencies>
@@ -82,6 +83,11 @@
             <artifactId>itext-core</artifactId>
             <version>${itext.version}</version>
             <type>pom</type>
+        </dependency>
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>html2pdf</artifactId>
+            <version>${html2pdf.version}</version>
         </dependency>
 
         <!-- AWS S3 / MinIO -->
