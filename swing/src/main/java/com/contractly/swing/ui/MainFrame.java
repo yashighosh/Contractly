@@ -11,7 +11,7 @@ public class MainFrame extends JFrame {
     private final JPanel mainPanel;
     private final BackendService backendService;
     private final LoginPanel loginPanel;
-    private DashboardPanel dashboardPanel;
+    private AuthResponse currentUser;
 
     public MainFrame() {
         setTitle("Contractly - Digital Contract Lifecycle Manager");
@@ -35,12 +35,26 @@ public class MainFrame extends JFrame {
     }
 
     public void onLoginSuccess(AuthResponse authResponse) {
-        dashboardPanel = new DashboardPanel(this, authResponse);
-        mainPanel.add(dashboardPanel, "DASHBOARD");
+        this.currentUser = authResponse;
+        mainPanel.add(new DashboardPanel(this, authResponse), "DASHBOARD");
+        mainPanel.add(new ContractsPanel(this), "CONTRACTS");
+        mainPanel.add(new ClientsPanel(this), "CLIENTS");
+        mainPanel.add(new TemplatesPanel(this), "TEMPLATES");
         cardLayout.show(mainPanel, "DASHBOARD");
     }
 
+    public void navigateTo(String view) {
+        cardLayout.show(mainPanel, view);
+    }
+
     public void logout() {
+        // Remove all panels except login
+        for (Component comp : mainPanel.getComponents()) {
+            if (comp != loginPanel) {
+                mainPanel.remove(comp);
+            }
+        }
+        currentUser = null;
         cardLayout.show(mainPanel, "LOGIN");
     }
 }
