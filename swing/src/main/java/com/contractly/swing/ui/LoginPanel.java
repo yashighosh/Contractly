@@ -2,13 +2,12 @@ package com.contractly.swing.ui;
 
 import com.contractly.swing.dto.ApiResponse;
 import com.contractly.swing.dto.AuthResponse;
-import com.formdev.flatlaf.extras.FlatSVGIcon;
 import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 public class LoginPanel extends JPanel {
     private final MainFrame mainFrame;
@@ -74,7 +73,7 @@ public class LoginPanel extends JPanel {
 
         loginButton.setEnabled(false);
         statusLabel.setText("Logging in...");
-        statusLabel.setForeground(Color.BLUE);
+        statusLabel.setForeground(new Color(100, 149, 237));
 
         new SwingWorker<ApiResponse<AuthResponse>, Void>() {
             @Override
@@ -89,12 +88,21 @@ public class LoginPanel extends JPanel {
                     if (response.isSuccess()) {
                         mainFrame.onLoginSuccess(response.getData());
                     } else {
-                        statusLabel.setText(response.getMessage());
+                        statusLabel.setText(response.getMessage() != null ? response.getMessage() : "Login failed");
                         statusLabel.setForeground(Color.RED);
                     }
-                } catch (Exception ex) {
-                    statusLabel.setText("Connection error: " + ex.getMessage());
+                } catch (ExecutionException ex) {
+                    // Unwrap the real cause
+                    Throwable cause = ex.getCause() != null ? ex.getCause() : ex;
+                    String msg = cause.getMessage() != null ? cause.getMessage() : cause.getClass().getSimpleName();
+                    statusLabel.setText("<html><body style='width:280px'>" + msg + "</body></html>");
                     statusLabel.setForeground(Color.RED);
+                    cause.printStackTrace();
+                } catch (Exception ex) {
+                    String msg = ex.getMessage() != null ? ex.getMessage() : ex.getClass().getSimpleName();
+                    statusLabel.setText("<html><body style='width:280px'>" + msg + "</body></html>");
+                    statusLabel.setForeground(Color.RED);
+                    ex.printStackTrace();
                 } finally {
                     loginButton.setEnabled(true);
                 }
