@@ -1,39 +1,43 @@
 # Contractly 🖋️
 
-**Contractly** is a premium, full-stack contract management platform designed for freelancers and small agencies. It streamlines the entire lifecycle of a contract—from creation using dynamic templates to automated signature tracking and revenue analytics.
+**Contractly** is a premium, full-stack contract management platform designed for the modern Indian economy. Built specifically for freelancers and small agencies, it streamlines the entire document lifecycle—from high-end visual drafting to automated signature tracking and revenue analytics.
 
-![Dashboard Preview](https://img.shields.io/badge/Status-Beta-gold?style=for-the-badge)
-![Tech Stack](https://img.shields.io/badge/Stack-Spring_Boot_%7C_React_%7C_MySQL-blue?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Beta-gold?style=for-the-badge)
+![Tech Stack](https://img.shields.io/badge/Stack-Node.js_%7C_React_%7C_MongoDB-green?style=for-the-badge)
 
 ---
 
 ## ✨ Key Features
 
--   **📊 Intelligent Dashboard**: Real-time overview of revenue, active contracts, and pending signatures.
--   **📄 Dynamic Templates**: Create reusable contract templates with variables for lightning-fast document generation.
--   **📑 Clause Library**: Store and manage common legal clauses to drag-and-drop into any contract.
--   **🤝 Client Management**: Integrated CRM to track client history and contact details.
--   **🔐 Secure Signatures**: Status tracking (Sent, Viewed, Signed) to keep you informed of every step.
--   **🌑 Modern UI/UX**: A stunning, responsive interface with Dark Mode support and smooth animations.
+-   **💎 Premium Glassmorphism UI**: A stunning, high-end interface featuring advanced Framer Motion animations and "Midnight & Gold" aesthetics.
+-   **📊 Intelligent Dashboard**: Real-time overview of revenue, active contracts, and expiring documents.
+-   **📄 Dynamic Templates**: A public showcase of categorized legal templates (Design, Dev, Marketing) ready to be customized.
+-   **✒️ Legally Valid Signatures**: IT Act-compliant e-signatures with comprehensive IP and timestamp audit trails.
+-   **🛡️ SuperAdmin Portal**: Dedicated interface for managing user registrations, API logs, and platform health.
+-   **💹 Revenue Analytics**: Track locked revenue and payment milestones automatically.
 
 ---
 
 ## 🛠️ Tech Stack
 
-### **Backend**
--   **Framework**: Spring Boot 3.4.5 (Java 21)
--   **Database**: MySQL 8.0 (Raw JDBC for high performance)
--   **Security**: JWT (JSON Web Tokens) with 24-hour sessions
--   **Cache**: Redis (for session and rate limiting)
--   **Migrations**: Custom SQL-based schema initialization
-
 ### **Frontend**
--   **Framework**: React (Vite)
+-   **Framework**: React 18 (Vite)
+-   **Styling**: Premium Vanilla CSS + Glassmorphism logic
 -   **State Management**: Zustand
 -   **Data Fetching**: TanStack Query (React Query)
--   **Styling**: TailwindCSS & Vanilla CSS
+-   **Animations**: Framer Motion (Staggered entries, 3D transforms)
 -   **Icons**: Lucide React
--   **Animations**: Framer Motion
+
+### **Backend**
+-   **Runtime**: Node.js (TypeScript)
+-   **Framework**: Express.js
+-   **Database**: MongoDB (Mongoose)
+-   **Security**: JWT (JSON Web Tokens) with secure HTTP-only cookie support
+-   **Architecture**: Modular Controller-Route-Model pattern
+
+### **Admin Portal**
+-   **Framework**: Vite + React + TypeScript
+-   **UI**: Minimalist, high-performance monitoring dashboard
 
 ---
 
@@ -41,46 +45,24 @@
 
 ### **Prerequisites**
 -   [Docker & Docker Compose](https://www.docker.com/products/docker-desktop)
--   [Node.js 20+](https://nodejs.org/) (for local frontend dev)
--   [JDK 21+](https://openjdk.org/projects/jdk/21/) (for local backend dev)
+-   [Node.js 20+](https://nodejs.org/)
 
 ### **One-Command Setup (Recommended)**
-The easiest way to get Contractly running is via Docker:
+Contractly is fully containerized. To get everything running in seconds:
 
 ```bash
 # Clone the repository
 git clone https://github.com/yashighosh/Contractly.git
 cd Contractly
 
-# Start all services (MySQL, Redis, Backend, Frontend)
+# Start all services (MongoDB, Backend, Frontend, Admin)
 docker compose up -d
 ```
 
 Your app will be available at:
--   **Frontend**: `http://localhost:5173`
--   **Backend API**: `http://localhost:8082/api`
-
----
-
-## 🔧 Development Configuration
-
-### **Frontend Environment Variables**
-Create a `.env` file in the `frontend/` directory:
-```env
-VITE_API_URL=http://localhost:8082/api
-```
-
-### **Backend Configuration**
-The backend configuration is managed via `application.properties`. Key settings:
--   `app.jwt.access-token-expiry-ms=86400000` (24 Hours)
--   `spring.sql.init.mode=never` (Prevent schema conflicts on restart)
-
----
-
-## 👤 Default User Credentials
-For the initial setup and demo data, use:
--   **Email**: `anikdas210605@gmail.com`
--   **Password**: `password`
+-   **Main Frontend**: `http://localhost:5173`
+-   **Admin Portal**: `http://localhost:5174`
+-   **API Server**: `http://localhost:8080/api`
 
 ---
 
@@ -88,12 +70,13 @@ For the initial setup and demo data, use:
 
 ```text
 contractly/
-├── backend/            # Spring Boot Application
-│   ├── src/            # Java source files
-│   └── docker-compose.yml
-├── frontend/           # React Application
-│   ├── src/            # Components, Pages, Stores
-│   └── tailwind.config.js
+├── admin/              # Admin Monitoring Portal (React + TS)
+├── backend/            # Express API Server (Node + TypeScript)
+│   ├── src/            # Controllers, Models, Routes, Middlewares
+│   └── package.json
+├── frontend/           # Customer Facing Web App (React)
+│   ├── src/            # Pages, Components (Landing, Dashboard, Editor)
+│   └── public/         # Branding assets
 └── readme.md           # You are here
 ```
 
@@ -103,3 +86,5 @@ contractly/
 This project is licensed under the MIT License.
 
 ---
+
+Built with ❤️ for the Indian Freelance Community 🇮🇳
