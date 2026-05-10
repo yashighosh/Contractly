@@ -11,6 +11,7 @@ import Placeholder from '@tiptap/extension-placeholder';
 import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
 import Highlight from '@tiptap/extension-highlight';
+import VariableHighlight from '../utils/variableHighlight';
 import {
   ArrowLeft, Save, Eye, Send, Bold, Italic, UnderlineIcon,
   Heading1, Heading2, Minus, List, ListOrdered, AlertTriangle,
@@ -77,6 +78,7 @@ export default function ContractEdit() {
       Underline,
       Link.configure({ openOnClick: false }),
       Highlight,
+      VariableHighlight,
     ],
     content: '<p></p>',
     editorProps: { attributes: { class: 'ProseMirror focus:outline-none' } },
