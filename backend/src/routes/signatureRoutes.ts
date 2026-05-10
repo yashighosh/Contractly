@@ -3,7 +3,7 @@ import { viewContract, signContract } from '../controllers/signatureController';
 
 const router = express.Router();
 
-router.get('/:token', viewContract);
-router.post('/:token', signContract);
+router.get('/:id', viewContract);
+router.post('/:id', signContract);
 
 export default router;
