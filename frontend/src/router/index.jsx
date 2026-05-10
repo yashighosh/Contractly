@@ -18,6 +18,8 @@ import Clients      from '../pages/Clients';
 import Settings     from '../pages/Settings';
 import SignPage     from '../pages/SignPage';
 import LandingPage  from '../pages/LandingPage';
+import PricingPage  from '../pages/PricingPage';
+import TemplatesPage from '../pages/TemplatesPage';
 
 // ── Route guards ──────────────────────────────────────────
 
@@ -63,6 +65,8 @@ export const router = createBrowserRouter([
 
   // Landing — public root
   { path: '/', element: <HomeRoute /> },
+  { path: '/pricing', element: <PricingPage /> },
+  { path: '/templates-public', element: <TemplatesPage /> },
 
   // Auth routes (redirect to dashboard if already logged in)
   { path: '/login',    element: <PublicRoute><Login /></PublicRoute> },
