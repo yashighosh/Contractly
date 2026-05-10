@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import User from '../models/User';
 import Contract from '../models/Contract';
+import AuditLog from '../models/AuditLog';
 
 export const getAllUsers = async (req: any, res: Response) => {
   try {
@@ -16,6 +17,7 @@ export const getSystemStats = async (req: any, res: Response) => {
     const userCount = await User.countDocuments();
     const contractCount = await Contract.countDocuments();
     const recentUsers = await User.find().select('fullName email createdAt').sort({ createdAt: -1 }).limit(5);
+    const recentLogs = await AuditLog.find().populate('user', 'fullName email').sort({ createdAt: -1 }).limit(10);
 
     res.json({
       success: true,
@@ -23,6 +25,7 @@ export const getSystemStats = async (req: any, res: Response) => {
         totalUsers: userCount,
         totalContracts: contractCount,
         recentRegistrations: recentUsers,
+        recentActivity: recentLogs
       },
     });
   } catch (error: any) {
