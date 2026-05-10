@@ -1,20 +1,36 @@
-# Stage 1: Build the application
-FROM maven:3.9.6-eclipse-temurin-21-alpine AS build
-WORKDIR /app
-COPY pom.xml .
-# Download dependencies
-RUN mvn dependency:go-offline -B
-COPY src ./src
-# Package the application
-RUN mvn clean package -DskipTests
+# Build stage
+FROM node:20-alpine AS build
 
-# Stage 2: Run the application
-FROM eclipse-temurin:21-jre-alpine
 WORKDIR /app
-COPY --from=build /app/target/contractly-backend-0.1.0.jar app.jar
 
-# Expose the application port
+# Copy package.json and package-lock.json
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy source code and config files
+COPY . .
+
+# Compile TypeScript to JavaScript
+RUN npx tsc
+
+# Production stage
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install only production dependencies
+RUN npm install --only=production
+
+# Copy compiled JavaScript from build stage
+COPY --from=build /app/dist ./dist
+
+# Expose the port
 EXPOSE 8082
 
-# Run the jar file
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Start the application
+CMD ["node", "dist/app.js"]
