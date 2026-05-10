@@ -9,12 +9,6 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import {
-  YASHI_SEED_CONTRACTS,
-  YASHI_SEED_CLIENTS,
-  YASHI_SEED_ACTIVITY,
-  DEMO_EMAIL,
-} from './seedData';
 
 /* ── empty slate for a brand-new user ── */
 function emptyUserData() {
@@ -50,29 +44,8 @@ export const useDataStore = create(
     (set, get) => ({
       users: {}, // { [userId]: { contracts, clients, templates, activity } }
 
-      /* ── Seed demo data for yashi on first load ── */
-      seedDemoIfNeeded: (userId, email) => {
-        const state = get();
-        const isDemoEmail = email?.toLowerCase() === DEMO_EMAIL;
-        const isDemoId    = userId === 'demo-user-yashi';
-
-        // Seed if: (email matches OR demo ID) AND data slot is empty/unseeded
-        if ((isDemoEmail || isDemoId) && !state.users[userId]?._seeded) {
-          set((s) => ({
-            users: {
-              ...s.users,
-              [userId]: {
-                contracts: YASHI_SEED_CONTRACTS,
-                clients:   YASHI_SEED_CLIENTS,
-                clauses:   [],
-                templates: [],
-                activity:  YASHI_SEED_ACTIVITY,
-                _seeded:   true,
-              },
-            },
-          }));
-        }
-      },
+      /* ── Seed demo data removed ── */
+      seedDemoIfNeeded: () => {},
 
       /* ── contracts ──
          NOTE: Do NOT call getContracts(userId) inside a useDataStore() selector —
