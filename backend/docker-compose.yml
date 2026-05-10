@@ -1,7 +1,7 @@
 version: '3.8'
 
 services:
-  contractly:
+  backend:
     build:
       context: .
       dockerfile: Dockerfile
@@ -9,46 +9,21 @@ services:
     ports:
       - "8082:8082"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/contractly?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-      - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=root
-      - SPRING_DATA_REDIS_HOST=redis
-      - SPRING_DATA_REDIS_PORT=6379
-      - SPRING_SQL_INIT_MODE=never
-      - SERVER_PORT=8082
+      - PORT=8082
+      - MONGO_URI=mongodb://mongo:27017/contractly
+      - JWT_SECRET=contractly-super-secret-key-that-is-at-least-256-bits-long-for-hs256
     depends_on:
-      mysql:
-        condition: service_healthy
-      redis:
-        condition: service_started
+      - mongo
     networks:
       - contractly-net
 
-  mysql:
-    image: mysql:8.0
-    container_name: contractly-mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: contractly
+  mongo:
+    image: mongo:6.0
+    container_name: contractly-mongo
     ports:
-      - "3307:3306"
+      - "27017:27017"
     volumes:
-      - contractly_mysql_data:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    networks:
-      - contractly-net
-
-  redis:
-    image: redis:7-alpine
-    container_name: contractly-redis
-    ports:
-      - "6381:6379"
-    volumes:
-      - contractly_redis_data:/data
+      - contractly_mongo_data:/data/db
     networks:
       - contractly-net
 
@@ -57,5 +32,4 @@ networks:
     driver: bridge
 
 volumes:
-  contractly_mysql_data:
-  contractly_redis_data:
+  contractly_mongo_data:
