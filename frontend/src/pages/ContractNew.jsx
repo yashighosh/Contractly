@@ -7,6 +7,7 @@ import Placeholder from '@tiptap/extension-placeholder';
 import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
 import Highlight from '@tiptap/extension-highlight';
+import VariableHighlight from '../utils/variableHighlight';
 import {
   ArrowLeft, Save, Eye, Send, Bold, Italic, UnderlineIcon,
   Heading1, Heading2, Link2, Minus, List, ListOrdered,
@@ -89,6 +90,7 @@ export default function ContractNew() {
       Underline,
       Link.configure({ openOnClick: false }),
       Highlight,
+      VariableHighlight,
     ],
     content: DEFAULT_CONTENT,
     editorProps: {
