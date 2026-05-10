@@ -1,86 +1,49 @@
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Menu, Download, PlayCircle, Check, ArrowRight, Zap, FileText, PenLine, BarChart2, Copy, Clock, Users } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 
-const lp = {
-  navy:    'var(--lp-navy)',
-  mid:     'var(--lp-navy-mid)',
-  card:    'var(--lp-navy-card)',
-  border:  'var(--lp-navy-border)',
-  gold:    'var(--lp-gold)',
-  goldLt:  'var(--lp-gold-light)',
-  goldDim: 'var(--lp-gold-dim)',
-  em:      'var(--lp-emerald)',
-  tp:      'var(--lp-text-primary)',
-  ts:      'var(--lp-text-secondary)',
-  tm:      'var(--lp-text-muted)',
-};
-
-const inView = { initial:{opacity:0,y:32}, whileInView:{opacity:1,y:0}, viewport:{once:true,margin:'-80px'}, transition:{duration:0.5,ease:'easeOut'} };
-
-/* ── Nav ── */
-function LandingNav() {
-  const user = useAuthStore((s) => s.user);
-  const nav = useNavigate();
-  return (
-    <header style={{ position:'sticky', top:0, zIndex:50, height:64, backdropFilter:'blur(14px)', WebkitBackdropFilter:'blur(14px)', background:'rgba(11,22,41,0.85)', borderBottom:`0.5px solid ${lp.border}`, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 5vw' }}>
-      <div style={{ fontFamily:'Lora,Georgia,serif', fontSize:20, fontWeight:600, color:lp.tp, display:'flex', alignItems:'center', gap:8 }}>
-        <img src="/logo.svg" alt="Contractly" style={{ width: 26, height: 26 }} />
-        Contractly
-      </div>
-      <nav className="hidden md:flex items-center gap-8">
-        {['Features','How it works','Pricing','Templates'].map(l => (
-          <a key={l} href={`#${l.toLowerCase().replace(/ /g,'-')}`}
-            style={{ fontFamily:'DM Sans,sans-serif', fontSize:13.5, color:lp.ts, textDecoration:'none', transition:'color 150ms' }}
-            onMouseEnter={e=>e.target.style.color=lp.tp} onMouseLeave={e=>e.target.style.color=lp.ts}>{l}</a>
-        ))}
-      </nav>
-      <div className="flex items-center gap-3">
-        {user
-          ? <Link to="/dashboard" style={{ fontFamily:'DM Sans,sans-serif', fontSize:14, color:lp.tp, border:`1px solid ${lp.border}`, borderRadius:8, padding:'7px 16px', textDecoration:'none', background:'transparent' }}>Go to Dashboard</Link>
-          : <Link to="/login" style={{ fontFamily:'DM Sans,sans-serif', fontSize:14, color:lp.ts, textDecoration:'none', padding:'7px 16px' }}>Log in</Link>
-        }
-        <Link to="/register" style={{ fontFamily:'DM Sans,sans-serif', fontSize:14, fontWeight:500, color:lp.navy, background:lp.gold, borderRadius:8, padding:'7px 16px', textDecoration:'none' }}>Get started free</Link>
-        <button className="md:hidden" style={{ color:lp.ts, background:'none', border:'none', cursor:'pointer' }}><Menu size={20} /></button>
-      </div>
-    </header>
-  );
-}
+import LandingNav from '../components/landing/LandingNav';
+import LandingFooter from '../components/landing/LandingFooter';
+import { lp, inView } from '../utils/landingTheme';
 
 /* ── Hero ── */
 function HeroSection() {
   const nav = useNavigate();
   return (
-    <section style={{ minHeight:'88vh', background:lp.navy, display:'flex', alignItems:'center', justifyContent:'center', position:'relative', overflow:'hidden' }}>
-      <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 70% 50% at 50% 0%, rgba(201,168,76,0.07), transparent 60%)', pointerEvents:'none' }} />
-      <div style={{ position:'absolute', inset:0, background:'radial-gradient(ellipse 40% 30% at 80% 70%, rgba(14,156,120,0.05), transparent 50%)', pointerEvents:'none' }} />
-      <div style={{ position:'absolute', inset:0, backgroundImage:`linear-gradient(${lp.border} 1px, transparent 1px),linear-gradient(90deg, ${lp.border} 1px, transparent 1px)`, backgroundSize:'48px 48px', opacity:0.03, pointerEvents:'none' }} />
-      <motion.div initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{duration:0.6}} style={{ textAlign:'center', padding:'0 5vw', maxWidth:680, position:'relative', zIndex:1 }}>
-        <motion.div initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} transition={{delay:0.1}} style={{ display:'inline-flex', alignItems:'center', gap:8, border:`1px solid ${lp.gold}`, borderRadius:999, padding:'5px 14px', marginBottom:28, background:lp.goldDim }}>
-          <span style={{ width:7, height:7, borderRadius:'50%', background:lp.gold, animation:'pulse 2s infinite' }} />
-          <span style={{ fontFamily:'DM Sans,sans-serif', fontSize:13, color:lp.gold }}>Built for Indian freelancers & agencies</span>
+    <section style={{ minHeight:'92vh', background:lp.navy, display:'flex', alignItems:'center', justifyContent:'center', position:'relative', overflow:'hidden' }}>
+      <div style={{ position:'absolute', inset:0, background:'radial-gradient(circle at 50% -20%, rgba(250, 204, 21, 0.12), transparent 70%)', pointerEvents:'none' }} />
+      <div style={{ position:'absolute', inset:0, background:'radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.08), transparent 50%)', pointerEvents:'none' }} />
+      <div style={{ position:'absolute', inset:0, backgroundImage:`linear-gradient(${lp.border} 1px, transparent 1px),linear-gradient(90deg, ${lp.border} 1px, transparent 1px)`, backgroundSize:'64px 64px', opacity:0.1, pointerEvents:'none' }} />
+      <motion.div initial={{opacity:0,y:20}} animate={{opacity:1,y:0}} transition={{duration:0.8, ease:[0.16, 1, 0.3, 1]}} style={{ textAlign:'center', padding:'0 5vw', maxWidth:850, position:'relative', zIndex:1 }}>
+        <motion.div initial={{opacity:0, scale:0.9}} animate={{opacity:1, scale:1}} transition={{delay:0.1}} style={{ display:'inline-flex', alignItems:'center', gap:10, border:`1px solid rgba(250, 204, 21, 0.3)`, borderRadius:999, padding:'6px 16px', marginBottom:32, background:'rgba(250, 204, 21, 0.05)', backdropFilter:'blur(8px)' }}>
+          <span style={{ width:8, height:8, borderRadius:'50%', background:lp.gold, boxShadow:`0 0 12px ${lp.gold}` }} />
+          <span style={{ fontFamily:'DM Sans,sans-serif', fontSize:13, fontWeight:600, color:lp.gold, letterSpacing:'0.02em' }}>Trusted by 2,000+ Indian Freelancers</span>
         </motion.div>
-        <motion.h1 initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} transition={{delay:0.2}} style={{ fontFamily:'Lora,Georgia,serif', fontWeight:600, fontSize:'clamp(34px,6vw,58px)', color:lp.tp, lineHeight:1.15, margin:'0 0 20px' }}>
-          Contracts that <em style={{ color:lp.gold, fontStyle:'italic' }}>close deals</em>,<br/>not conversations
+        <motion.h1 initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} transition={{delay:0.2}} style={{ fontFamily:'Lora,Georgia,serif', fontWeight:600, fontSize:'clamp(40px,7vw,72px)', color:lp.tp, lineHeight:1.05, margin:'0 0 24px', letterSpacing:'-0.03em' }}>
+          Contracts that <span style={{ color:lp.gold, position:'relative' }}>close deals<svg style={{ position:'absolute', bottom:-10, left:0, width:'100%', height:12 }} viewBox="0 0 100 12" preserveAspectRatio="none"><path d="M0 10 Q 50 0 100 10" stroke={lp.gold} strokeWidth="3" fill="none" opacity="0.4" /></svg></span>,<br/>not conversations
         </motion.h1>
-        <motion.p initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} transition={{delay:0.3}} style={{ fontFamily:'DM Sans,sans-serif', fontSize:16, color:lp.ts, maxWidth:480, margin:'0 auto 32px', lineHeight:1.7 }}>
-          Draft, send, and get contracts signed in minutes. Purpose-built for Indian freelancers with GST support, legally valid e-signatures, and real-time audit trails.
+        <motion.p initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} transition={{delay:0.3}} style={{ fontFamily:'DM Sans,sans-serif', fontSize:18, color:lp.ts, maxWidth:580, margin:'0 auto 40px', lineHeight:1.6 }}>
+          Draft, send, and get contracts signed in minutes. Built for the modern Indian economy with GST support and legally valid e-signatures.
         </motion.p>
-        <motion.div initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} transition={{delay:0.4}} className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
-          <button onClick={()=>nav('/register')} style={{ fontFamily:'DM Sans,sans-serif', fontWeight:600, fontSize:15, color:lp.navy, background:lp.gold, border:'none', borderRadius:10, padding:'12px 24px', cursor:'pointer', display:'flex', alignItems:'center', gap:8, transition:'all 150ms' }}
-            onMouseEnter={e=>{e.currentTarget.style.background=lp.goldLt;e.currentTarget.style.transform='scale(1.02)'}} onMouseLeave={e=>{e.currentTarget.style.background=lp.gold;e.currentTarget.style.transform='scale(1)'}}>
-            <Download size={16} /> Start for free
+        <motion.div initial={{opacity:0,y:10}} animate={{opacity:1,y:0}} transition={{delay:0.4}} className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
+          <button onClick={()=>nav('/register')} style={{ fontFamily:'DM Sans,sans-serif', fontWeight:700, fontSize:16, color:lp.navy, background:lp.gold, border:'none', borderRadius:14, padding:'16px 32px', cursor:'pointer', display:'flex', alignItems:'center', gap:10, transition:'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)', boxShadow:`0 10px 30px -10px ${lp.gold}66` }}
+            onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-4px) scale(1.02)';e.currentTarget.style.boxShadow=`0 20px 40px -10px ${lp.gold}88`}} onMouseLeave={e=>{e.currentTarget.style.transform='translateY(0) scale(1)';e.currentTarget.style.boxShadow=`0 10px 30px -10px ${lp.gold}66`}}>
+            <Download size={20} /> Start for free
           </button>
-          <button style={{ fontFamily:'DM Sans,sans-serif', fontWeight:500, fontSize:15, color:lp.tp, background:'transparent', border:`1px solid ${lp.border}`, borderRadius:10, padding:'12px 24px', cursor:'pointer', display:'flex', alignItems:'center', gap:8, transition:'border-color 150ms' }}
-            onMouseEnter={e=>e.currentTarget.style.borderColor=lp.gold} onMouseLeave={e=>e.currentTarget.style.borderColor=lp.border}>
-            <PlayCircle size={16} /> Watch demo
+          <button style={{ fontFamily:'DM Sans,sans-serif', fontWeight:600, fontSize:16, color:lp.tp, background:'rgba(255,255,255,0.03)', border:`1px solid ${lp.border}`, borderRadius:14, padding:'16px 32px', cursor:'pointer', display:'flex', alignItems:'center', gap:10, transition:'all 0.3s', backdropFilter:'blur(10px)' }}
+            onMouseEnter={e=>{e.currentTarget.style.background='rgba(255,255,255,0.08)';e.currentTarget.style.borderColor=lp.gold}} onMouseLeave={e=>{e.currentTarget.style.background='rgba(255,255,255,0.03)';e.currentTarget.style.borderColor=lp.border}}>
+            <PlayCircle size={20} /> Watch demo
           </button>
         </motion.div>
-        <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:0.55}} className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
-          {['No credit card needed','Legally valid e-signatures','GST-ready invoices','5 minute setup'].map((t,i)=>(
-            <span key={i} style={{ fontFamily:'DM Sans,sans-serif', fontSize:13, color:lp.ts, display:'flex', alignItems:'center', gap:5 }}>
-              <Check size={13} style={{ color:lp.em }} />{t}
+        <motion.div initial={{opacity:0}} animate={{opacity:1}} transition={{delay:0.6}} className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
+          {['No credit card','Legally valid','GST-ready','5 min setup'].map((t,i)=>(
+            <span key={i} style={{ fontFamily:'DM Sans,sans-serif', fontSize:14, fontWeight:500, color:lp.tm, display:'flex', alignItems:'center', gap:6 }}>
+              <div style={{ width:16, height:16, borderRadius:'50%', background:`${lp.em}22`, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                <Check size={10} style={{ color:lp.em }} strokeWidth={3} />
+              </div>
+              {t}
             </span>
           ))}
         </motion.div>
@@ -161,24 +124,57 @@ const FEATURES = [
 ];
 function FeaturesSection() {
   return (
-    <motion.section {...inView} id="features" style={{ padding:'96px 5vw', background:lp.mid }}>
-      <div style={{ textAlign:'center', marginBottom:56 }}>
-        <p style={{ fontFamily:'DM Sans,sans-serif', fontSize:12, fontWeight:600, color:lp.gold, textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:12 }}>Why Contractly</p>
-        <h2 style={{ fontFamily:'Lora,Georgia,serif', fontSize:'clamp(26px,4vw,40px)', fontWeight:600, color:lp.tp, margin:0 }}>Everything you need, nothing you don't</h2>
+    <motion.section {...inView} id="features" style={{ padding:'120px 5vw', background:lp.mid, position:'relative' }}>
+      <div style={{ position:'absolute', top:0, left:'10%', width:'30%', height:'30%', background:`radial-gradient(circle, ${lp.gold}05, transparent 70%)`, pointerEvents:'none' }} />
+      <div style={{ textAlign:'center', marginBottom:72, position:'relative' }}>
+        <p style={{ fontFamily:'DM Sans,sans-serif', fontSize:14, fontWeight:700, color:lp.gold, textTransform:'uppercase', letterSpacing:'0.15em', marginBottom:16 }}>The Powerhouse</p>
+        <h2 style={{ fontFamily:'Lora,Georgia,serif', fontSize:'clamp(32px,5vw,48px)', fontWeight:600, color:lp.tp, margin:0, letterSpacing:'-0.02em' }}>Everything you need, <span style={{ color:lp.gold, fontStyle:'italic' }}>nothing you don't</span></h2>
       </div>
-      <div style={{ maxWidth:1000, margin:'0 auto', display:'grid', gap:32 }} className="grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+      <div style={{ maxWidth:1100, margin:'0 auto', display:'grid', gap:24 }} className="grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         {FEATURES.map(({icon:Icon,t,d},i)=>(
-          <motion.div key={t} initial={{opacity:0,y:16}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{delay:i*0.08,duration:0.4}}
-            style={{ background:lp.card, border:`1px solid ${lp.border}`, borderRadius:16, padding:'36px 24px', position:'relative', overflow:'hidden', cursor:'default', transition:'border-color 200ms, background 200ms', display:'flex', flexDirection:'column', alignItems:'center', textAlign:'center' }}
-            onMouseEnter={e=>{e.currentTarget.style.background=lp.mid;e.currentTarget.style.borderColor=lp.goldDim;e.currentTarget.querySelector('.top-line').style.opacity='1'}}
-            onMouseLeave={e=>{e.currentTarget.style.background=lp.card;e.currentTarget.style.borderColor=lp.border;e.currentTarget.querySelector('.top-line').style.opacity='0'}}
+          <motion.div key={t} initial={{opacity:0,y:20}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{delay:i*0.1,duration:0.6, ease:[0.16, 1, 0.3, 1]}}
+            style={{ 
+              background:lp.card, 
+              border:`1px solid ${lp.border}`, 
+              borderRadius:24, 
+              padding:'40px 32px', 
+              position:'relative', 
+              overflow:'hidden', 
+              cursor:'default', 
+              transition:'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+              display:'flex', 
+              flexDirection:'column', 
+              alignItems:'flex-start' 
+            }}
+            onMouseEnter={e=>{
+              e.currentTarget.style.background='rgba(30, 41, 59, 0.8)';
+              e.currentTarget.style.borderColor='rgba(250, 204, 21, 0.3)';
+              e.currentTarget.style.transform='translateY(-8px)';
+              const bg = e.currentTarget.querySelector('.icon-bg');
+              if(bg) { bg.style.background=lp.gold; bg.style.transform='rotate(10deg) scale(1.1)'; }
+              const icon = e.currentTarget.querySelector('.icon');
+              if(icon) { icon.style.color=lp.navy; }
+              const glow = e.currentTarget.querySelector('.glow');
+              if(glow) { glow.style.opacity='1'; }
+            }}
+            onMouseLeave={e=>{
+              e.currentTarget.style.background=lp.card;
+              e.currentTarget.style.borderColor=lp.border;
+              e.currentTarget.style.transform='translateY(0)';
+              const bg = e.currentTarget.querySelector('.icon-bg');
+              if(bg) { bg.style.background='rgba(255,255,255,0.03)'; bg.style.transform='rotate(0deg) scale(1)'; }
+              const icon = e.currentTarget.querySelector('.icon');
+              if(icon) { icon.style.color=lp.gold; }
+              const glow = e.currentTarget.querySelector('.glow');
+              if(glow) { glow.style.opacity='0'; }
+            }}
           >
-            <div className="top-line" style={{ position:'absolute', top:0, left:0, right:0, height:2, background:`linear-gradient(90deg, transparent, ${lp.gold}, transparent)`, opacity:0, transition:'opacity 200ms' }} />
-            <div style={{ width:40, height:40, borderRadius:10, background:lp.goldDim, display:'flex', alignItems:'center', justifyContent:'center', marginBottom:16 }}>
-              <Icon size={18} style={{ color:lp.gold }} />
+            <div className="glow" style={{ position:'absolute', inset:0, background:`radial-gradient(circle at 50% 0%, ${lp.gold}11, transparent 70%)`, opacity:0, transition:'opacity 0.4s' }} />
+            <div className="icon-bg" style={{ width:52, height:52, borderRadius:16, background:'rgba(255,255,255,0.03)', border:`1px solid ${lp.border}`, display:'flex', alignItems:'center', justifyContent:'center', marginBottom:24, transition:'all 0.4s' }}>
+              <Icon className="icon" size={24} style={{ color:lp.gold, transition:'color 0.4s' }} />
             </div>
-            <h3 style={{ fontFamily:'DM Sans,sans-serif', fontSize:15, fontWeight:600, color:lp.tp, margin:'0 0 10px' }}>{t}</h3>
-            <p style={{ fontFamily:'DM Sans,sans-serif', fontSize:13.5, color:lp.ts, lineHeight:1.6, margin:0 }}>{d}</p>
+            <h3 style={{ fontFamily:'DM Sans,sans-serif', fontSize:18, fontWeight:700, color:lp.tp, margin:'0 0 12px' }}>{t}</h3>
+            <p style={{ fontFamily:'DM Sans,sans-serif', fontSize:15, color:lp.ts, lineHeight:1.6, margin:0 }}>{d}</p>
           </motion.div>
         ))}
       </div>
@@ -228,26 +224,55 @@ const TESTIMONIALS = [
 ];
 function Testimonials() {
   return (
-    <motion.section {...inView} style={{ padding:'96px 5vw', background:lp.mid }}>
-      <div style={{ textAlign:'center', marginBottom:56 }}>
-        <p style={{ fontFamily:'DM Sans,sans-serif', fontSize:12, fontWeight:600, color:lp.gold, textTransform:'uppercase', letterSpacing:'0.1em', marginBottom:12 }}>Social proof</p>
-        <h2 style={{ fontFamily:'Lora,Georgia,serif', fontSize:'clamp(26px,4vw,40px)', fontWeight:600, color:lp.tp, margin:0 }}>
-          Freelancers finally feel <em style={{ color:lp.gold, fontStyle:'italic' }}>protected</em>
+    <motion.section {...inView} style={{ padding:'120px 5vw', background:lp.mid, position:'relative' }}>
+      <div style={{ textAlign:'center', marginBottom:64 }}>
+        <p style={{ fontFamily:'DM Sans,sans-serif', fontSize:14, fontWeight:700, color:lp.gold, textTransform:'uppercase', letterSpacing:'0.15em', marginBottom:16 }}>Social proof</p>
+        <h2 style={{ fontFamily:'Lora,Georgia,serif', fontSize:'clamp(32px,5vw,48px)', fontWeight:600, color:lp.tp, margin:0, letterSpacing:'-0.02em' }}>
+          Freelancers finally feel <span style={{ color:lp.gold, fontStyle:'italic' }}>protected</span>
         </h2>
       </div>
-      <div style={{ maxWidth:1000, margin:'0 auto', display:'grid', gap:20 }} className="grid-cols-1 md:grid-cols-3">
+      <div style={{ maxWidth:1100, margin:'0 auto', display:'grid', gap:24 }} className="grid-cols-1 md:grid-cols-3">
         {TESTIMONIALS.map(({q,name,role,init,c},i)=>(
-          <motion.div key={name} initial={{opacity:0,y:20}} whileInView={{opacity:1,y:0}} viewport={{once:true}} transition={{delay:i*0.1,duration:0.4}}
-            style={{ background:lp.card, border:`0.5px solid ${lp.border}`, borderRadius:16, padding:'24px', transition:'border-color 200ms', cursor:'default' }}
-            onMouseEnter={e=>e.currentTarget.style.borderColor='rgba(201,168,76,0.25)'}
-            onMouseLeave={e=>e.currentTarget.style.borderColor=lp.border}>
-            <div style={{ color:lp.gold, fontSize:15, marginBottom:14 }}>★★★★★</div>
-            <p style={{ fontFamily:'DM Sans,sans-serif', fontSize:13.5, color:lp.ts, lineHeight:1.7, fontStyle:'italic', margin:'0 0 20px' }}>"{q}"</p>
-            <div style={{ display:'flex', alignItems:'center', gap:10 }}>
-              <div style={{ width:36, height:36, borderRadius:'50%', background:c, display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'DM Sans,sans-serif', fontSize:12, fontWeight:700, color:'#0B1629' }}>{init}</div>
+          <motion.div 
+            key={name} 
+            initial={{opacity:0, y:30, scale:0.95}} 
+            whileInView={{opacity:1, y:0, scale:1}} 
+            viewport={{once:true}} 
+            transition={{delay:i*0.15, duration:0.6, ease:[0.16, 1, 0.3, 1]}}
+            style={{ 
+              background:lp.card, 
+              border:`1px solid ${lp.border}`, 
+              borderRadius:24, 
+              padding:'32px', 
+              transition:'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)', 
+              cursor:'default',
+              display:'flex',
+              flexDirection:'column',
+              justifyContent:'space-between',
+              height:'100%'
+            }}
+            onMouseEnter={e=>{
+              e.currentTarget.style.borderColor='rgba(250, 204, 21, 0.3)';
+              e.currentTarget.style.transform='translateY(-10px) scale(1.02)';
+              e.currentTarget.style.background='rgba(30, 41, 59, 0.8)';
+            }}
+            onMouseLeave={e=>{
+              e.currentTarget.style.borderColor=lp.border;
+              e.currentTarget.style.transform='translateY(0) scale(1)';
+              e.currentTarget.style.background=lp.card;
+            }}
+          >
+            <div>
+              <div style={{ display:'flex', gap:2, marginBottom:20 }}>
+                {[1,2,3,4,5].map(star=><span key={star} style={{ color:lp.gold, fontSize:16 }}>★</span>)}
+              </div>
+              <p style={{ fontFamily:'DM Sans,sans-serif', fontSize:15, color:lp.ts, lineHeight:1.7, fontStyle:'italic', margin:'0 0 32px' }}>"{q}"</p>
+            </div>
+            <div style={{ display:'flex', alignItems:'center', gap:12 }}>
+              <div style={{ width:44, height:44, borderRadius:12, background:c, display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'DM Sans,sans-serif', fontSize:14, fontWeight:800, color:'#020617', boxShadow:'0 8px 16px -4px rgba(0,0,0,0.4)' }}>{init}</div>
               <div>
-                <div style={{ fontFamily:'DM Sans,sans-serif', fontSize:13, fontWeight:600, color:lp.tp }}>{name}</div>
-                <div style={{ fontFamily:'DM Sans,sans-serif', fontSize:12, color:lp.tm }}>{role}</div>
+                <div style={{ fontFamily:'DM Sans,sans-serif', fontSize:14, fontWeight:700, color:lp.tp }}>{name}</div>
+                <div style={{ fontFamily:'DM Sans,sans-serif', fontSize:12, fontWeight:500, color:lp.tm }}>{role}</div>
               </div>
             </div>
           </motion.div>
@@ -261,41 +286,51 @@ function Testimonials() {
 function CtaSection() {
   const nav = useNavigate();
   return (
-    <motion.section {...inView} style={{ padding:'96px 5vw', background:lp.navy, borderTop:`0.5px solid ${lp.border}`, backgroundImage:'radial-gradient(ellipse 60% 80% at 50% 0%, rgba(201,168,76,0.05), transparent 60%)', textAlign:'center' }}>
-      <h2 style={{ fontFamily:'Lora,Georgia,serif', fontSize:'clamp(26px,4vw,42px)', fontWeight:600, color:lp.tp, margin:'0 0 16px' }}>
-        Stop losing money to <em style={{ color:lp.gold, fontStyle:'italic' }}>unsigned contracts</em>
-      </h2>
-      <p style={{ fontFamily:'DM Sans,sans-serif', fontSize:16, color:lp.ts, marginBottom:36 }}>Join thousands of Indian freelancers who get signed faster.</p>
-      <button onClick={()=>nav('/register')} style={{ fontFamily:'DM Sans,sans-serif', fontWeight:600, fontSize:16, color:'#0B1629', background:lp.gold, border:'none', borderRadius:12, padding:'14px 32px', cursor:'pointer', display:'inline-flex', alignItems:'center', gap:10, transition:'all 150ms' }}
-        onMouseEnter={e=>{e.currentTarget.style.background=lp.goldLt;e.currentTarget.style.transform='scale(1.02)'}}
-        onMouseLeave={e=>{e.currentTarget.style.background=lp.gold;e.currentTarget.style.transform='scale(1)'}}>
-        Create your first contract — free <ArrowRight size={16} />
-      </button>
-      <p style={{ fontFamily:'DM Sans,sans-serif', fontSize:12, color:lp.tm, marginTop:16 }}>No credit card · Free forever for first 3 contracts · Upgrade when you're ready</p>
+    <motion.section {...inView} style={{ padding:'120px 5vw', background:lp.navy, position:'relative', overflow:'hidden' }}>
+      {/* Background Orbs */}
+      <div style={{ position:'absolute', top:'-10%', left:'-10%', width:'40%', height:'80%', background:`radial-gradient(circle, ${lp.gold}11, transparent 70%)`, filter:'blur(60px)', pointerEvents:'none' }} />
+      <div style={{ position:'absolute', bottom:'-10%', right:'-10%', width:'40%', height:'80%', background:`radial-gradient(circle, ${lp.em}08, transparent 70%)`, filter:'blur(60px)', pointerEvents:'none' }} />
+      
+      <div style={{ maxWidth:1000, margin:'0 auto', background:'rgba(255,255,255,0.01)', border:`1px solid ${lp.border}`, borderRadius:40, padding:'80px 40px', position:'relative', backdropFilter:'blur(20px)', overflow:'hidden' }}>
+        {/* Card Shine */}
+        <div style={{ position:'absolute', top:0, left:0, right:0, height:1, background:`linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)` }} />
+        
+        <motion.div initial={{opacity:0, y:20}} whileInView={{opacity:1, y:0}} viewport={{once:true}} transition={{duration:0.6}}>
+          <h2 style={{ fontFamily:'Lora,Georgia,serif', fontSize:'clamp(32px,6vw,56px)', fontWeight:600, color:lp.tp, margin:'0 0 24px', lineHeight:1.1, letterSpacing:'-0.02em' }}>
+            Stop losing money to <br/>
+            <span style={{ color:lp.gold, position:'relative' }}>
+              unsigned contracts
+              <svg style={{ position:'absolute', bottom:-12, left:0, width:'100%', height:12 }} viewBox="0 0 100 12" preserveAspectRatio="none"><path d="M0 10 Q 50 0 100 10" stroke={lp.gold} strokeWidth="3" fill="none" opacity="0.4" /></svg>
+            </span>
+          </h2>
+          <p style={{ fontFamily:'DM Sans,sans-serif', fontSize:20, color:lp.ts, maxWidth:600, margin:'0 auto 48px', lineHeight:1.6 }}>
+            Join 2,000+ Indian freelancers who save 10+ hours a month by getting signed faster.
+          </p>
+          
+          <div className="flex flex-col items-center gap-6">
+            <button onClick={()=>nav('/register')} style={{ fontFamily:'DM Sans,sans-serif', fontWeight:700, fontSize:18, color:lp.navy, background:lp.gold, border:'none', borderRadius:16, padding:'20px 48px', cursor:'pointer', display:'inline-flex', alignItems:'center', gap:12, transition:'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)', boxShadow:`0 20px 40px -10px ${lp.gold}44` }}
+              onMouseEnter={e=>{e.currentTarget.style.transform='translateY(-6px) scale(1.02)';e.currentTarget.style.boxShadow=`0 30px 60px -12px ${lp.gold}66`}}
+              onMouseLeave={e=>{e.currentTarget.style.transform='translateY(0) scale(1)';e.currentTarget.style.boxShadow=`0 20px 40px -10px ${lp.gold}44`}}>
+              Create your first contract — free <ArrowRight size={20} />
+            </button>
+            <div style={{ display:'flex', alignItems:'center', gap:24 }}>
+              {['No credit card required', 'Legally valid in India', 'Cancel anytime'].map(t => (
+                <div key={t} style={{ display:'flex', alignItems:'center', gap:8, fontFamily:'DM Sans,sans-serif', fontSize:14, fontWeight:500, color:lp.tm }}>
+                  <div style={{ width:18, height:18, borderRadius:'50%', background:`${lp.em}22`, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <Check size={12} style={{ color:lp.em }} strokeWidth={3} />
+                  </div>
+                  {t}
+                </div>
+              ))}
+            </div>
+          </div>
+        </motion.div>
+      </div>
     </motion.section>
   );
 }
 
-/* ── Footer ── */
-function LandingFooter() {
-  return (
-    <footer style={{ background:lp.mid, borderTop:`0.5px solid ${lp.border}`, padding:'28px 5vw' }}>
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div style={{ fontFamily:'Lora,Georgia,serif', fontSize:16, fontWeight:600, color:lp.tp, display:'flex', alignItems:'center', gap:8 }}>
-          <img src="/logo.svg" alt="Contractly" style={{ width: 22, height: 22 }} />
-          Contractly
-        </div>
-        <div className="flex gap-6">
-          {['Features','How it works','Pricing','Templates'].map(l=>(
-            <a key={l} href={`#${l.toLowerCase().replace(/ /g,'-')}`} style={{ fontFamily:'DM Sans,sans-serif', fontSize:13, color:lp.tm, textDecoration:'none', transition:'color 150ms' }}
-              onMouseEnter={e=>e.target.style.color=lp.ts} onMouseLeave={e=>e.target.style.color=lp.tm}>{l}</a>
-          ))}
-        </div>
-        <p style={{ fontFamily:'DM Sans,sans-serif', fontSize:12, color:lp.tm, margin:0 }}>© 2025 Contractly. Built in India 🇮🇳</p>
-      </div>
-    </footer>
-  );
-}
+
 
 /* ── Page ── */
 export default function LandingPage() {
