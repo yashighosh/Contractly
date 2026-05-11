@@ -1,9 +1,10 @@
+name: contractly
 services:
-  backend:
+  contractly:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: contractly-backend
+    container_name: contractly
     ports:
       - "8082:8082"
     environment:
