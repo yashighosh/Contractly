@@ -6,6 +6,8 @@ export interface IUser extends Document {
   fullName: string;
   companyName?: string;
   role: string;
+  plan: 'FREE' | 'PRO' | 'TEAM';
+  subscriptionId?: string;
   avatarUrl?: string;
   createdAt: Date;
   updatedAt: Date;
@@ -18,6 +20,8 @@ const UserSchema: Schema = new Schema(
     fullName: { type: String, required: true },
     companyName: { type: String },
     role: { type: String, default: 'USER', enum: ['ADMIN', 'USER'] },
+    plan: { type: String, default: 'FREE', enum: ['FREE', 'PRO', 'TEAM'] },
+    subscriptionId: { type: String },
     avatarUrl: { type: String },
     lastLogin: { type: Date },
   },
