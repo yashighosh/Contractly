@@ -1,6 +1,8 @@
+import { Request, Response } from 'express';
 import { AuditService } from '../services/auditService';
 import { NotificationService } from '../services/notificationService';
 import { PlanLimitService } from '../services/planLimitService';
+import Contract from '../models/Contract';
 
 export const createContract = async (req: any, res: Response) => {
   try {
