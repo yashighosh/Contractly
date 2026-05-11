@@ -94,8 +94,8 @@ export const sendContract = async (req: any, res: Response) => {
       return res.status(404).json({ success: false, message: 'Contract not found' });
     }
     
-    await NotificationService.notifyNewContract(contract.clientEmail, contract.clientName, contract._id.toString());
-    await AuditService.log(req.user._id, 'CONTRACT_SEND', `Sent contract to ${contract.clientEmail}`, req.ip);
+    await NotificationService.notifyNewContract(contract.recipientEmail!, contract.recipientName!, contract._id.toString());
+    await AuditService.log(req.user._id, 'CONTRACT_SEND', `Sent contract to ${contract.recipientEmail}`, req.ip);
     
     res.json({ success: true, message: 'Contract sent to recipient', data: contract });
   } catch (error: any) {
