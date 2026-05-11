@@ -4,9 +4,9 @@ export class AuditService {
   static async log(userId: string | null, action: string, details: string, ip: string = '0.0.0.0') {
     try {
       await AuditLog.create({
-        user: userId,
+        userId,
         action,
-        details,
+        metadata: { details },
         ipAddress: ip
       });
     } catch (error) {
