@@ -1,8 +1,14 @@
 import { AuditService } from '../services/auditService';
 import { NotificationService } from '../services/notificationService';
+import { PlanLimitService } from '../services/planLimitService';
 
 export const createContract = async (req: any, res: Response) => {
   try {
+    const limitCheck = await PlanLimitService.checkContractLimit(req.user._id);
+    if (!limitCheck.allowed) {
+      return res.status(403).json({ success: false, message: limitCheck.reason });
+    }
+
     const contract = await Contract.create({
       ...req.body,
       userId: req.user._id,
