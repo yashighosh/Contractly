@@ -24,6 +24,26 @@ import dashboardRoutes from './routes/dashboardRoutes';
 import signatureRoutes from './routes/signatureRoutes';
 import auditRoutes from './routes/auditRoutes';
 import adminRoutes from './routes/adminRoutes';
+import billingRoutes from './routes/billingRoutes';
+import rateLimit from 'express-rate-limit';
+import * as Sentry from '@sentry/node';
+import { PostHog } from 'posthog-node';
+
+// Setup PostHog
+export const posthog = new PostHog(process.env.POSTHOG_API_KEY || 'mock_key', { host: 'https://app.posthog.com' });
+
+// Setup Sentry
+Sentry.init({ dsn: process.env.SENTRY_DSN || '' });
+
+// API Gateway features: Rate Limiting
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.use('/api/', apiLimiter);
 
 // Routes
 app.use('/api/v1/auth', authRoutes);
@@ -35,6 +55,7 @@ app.use('/api/v1/dashboard', dashboardRoutes);
 app.use('/api/v1/sign', signatureRoutes);
 app.use('/api/v1/audit', auditRoutes);
 app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/billing', billingRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
