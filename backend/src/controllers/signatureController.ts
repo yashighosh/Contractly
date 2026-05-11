@@ -13,8 +13,8 @@ export const viewContract = async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, message: 'Contract not found' });
     }
     // Only return public data
-    const { title, clientName, content, status } = contract;
-    res.json({ success: true, data: { title, clientName, content, status } });
+    const { title, recipientName, content, status } = contract;
+    res.json({ success: true, data: { title, recipientName, content, status } });
   } catch (error: any) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -59,7 +59,7 @@ export const signContract = async (req: Request, res: Response) => {
     await contract.save();
 
     // 5. Notifications
-    await NotificationService.notifyContractSigned(contract.clientEmail, signerName);
+    await NotificationService.notifyContractSigned(contract.recipientEmail!, signerName);
     await AuditService.log(null, 'CONTRACT_SIGNED', `Contract ${contract._id} signed by ${signerName}`, req.ip);
 
     res.json({ success: true, message: 'Contract signed successfully', pdfUrl: storageUrl });

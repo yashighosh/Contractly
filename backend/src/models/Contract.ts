@@ -20,6 +20,8 @@ export interface IContract extends Document {
   signToken?: string;
   signTokenExpiry?: Date;
   signedPdfKey?: string;
+  signatureId?: mongoose.Types.ObjectId;
+  pdfUrl?: string;
   sentAt?: Date;
   viewedAt?: Date;
   signedAt?: Date;
@@ -49,6 +51,8 @@ const ContractSchema: Schema = new Schema(
     signToken: { type: String },
     signTokenExpiry: { type: Date },
     signedPdfKey: { type: String },
+    signatureId: { type: Schema.Types.ObjectId, ref: 'SignatureRecord' },
+    pdfUrl: { type: String },
     sentAt: { type: Date },
     viewedAt: { type: Date },
     signedAt: { type: Date },
