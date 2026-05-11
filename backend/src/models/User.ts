@@ -9,6 +9,7 @@ export interface IUser extends Document {
   plan: 'FREE' | 'PRO' | 'TEAM';
   subscriptionId?: string;
   avatarUrl?: string;
+  lastLogin?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
