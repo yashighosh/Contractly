@@ -299,17 +299,30 @@ pre {
 }
 
 /* Variable highlight pill */
+/* Variable highlight pill */
 .variable-highlight {
   background-color: var(--accent-gold-lt);
   color: var(--accent-gold);
   border: 1px solid rgba(201, 168, 76, 0.3);
   border-radius: 4px;
   padding: 1px 6px;
-  font-size: 0.875rem;
+  font-size: 0; /* Hide the raw inner text */
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
+  display: inline-block;
+  vertical-align: baseline;
+  user-select: none;
+  -webkit-user-select: none;
 }
+
+.variable-highlight[data-var="client_name"]::after { content: var(--var-client_name, "{{client_name}}"); font-size: 0.875rem; }
+.variable-highlight[data-var="freelancer_name"]::after { content: var(--var-freelancer_name, "{{freelancer_name}}"); font-size: 0.875rem; }
+.variable-highlight[data-var="amount"]::after { content: var(--var-amount, "{{amount}}"); font-size: 0.875rem; }
+.variable-highlight[data-var="start_date"]::after { content: var(--var-start_date, "{{start_date}}"); font-size: 0.875rem; }
+.variable-highlight[data-var="end_date"]::after { content: var(--var-end_date, "{{end_date}}"); font-size: 0.875rem; }
+.variable-highlight[data-var="scope_of_work"]::after { content: var(--var-scope_of_work, "{{scope_of_work}}"); font-size: 0.875rem; }
+.variable-highlight:not([data-var])::after { content: "var"; font-size: 0.875rem; }
 
 .variable-highlight:hover {
   background-color: rgba(201, 168, 76, 0.2);
