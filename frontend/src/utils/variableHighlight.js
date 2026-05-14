@@ -1,39 +1,51 @@
-import { Mark, mergeAttributes } from '@tiptap/core';
+import { Node, mergeAttributes } from '@tiptap/core';
 
 /**
- * Custom TipTap Mark extension that preserves <span class="variable-highlight">
- * elements in the editor. Without this, TipTap strips the spans on content parse/load,
- * causing {{variable}} placeholders to render as plain text or get lost entirely.
+ * Custom TipTap Node extension for variables.
+ * Using a Node instead of a Mark makes it atomic (users can't edit inside it).
  */
-const VariableHighlight = Mark.create({
+const VariableHighlight = Node.create({
   name: 'variableHighlight',
 
-  // Allow it inside any inline context
   group: 'inline',
   inline: true,
+  atom: true,
 
-  // Don't let other marks overlap (keep it atomic)
-  excludes: '',
+  addAttributes() {
+    return {
+      'data-var': {
+        default: null,
+      },
+    };
+  },
 
   parseHTML() {
     return [
       {
         tag: 'span.variable-highlight',
+        getAttrs: (element) => ({
+          'data-var': element.getAttribute('data-var') || element.innerText.replace(/[{}]/g, '').trim(),
+        }),
       },
     ];
   },
 
   renderHTML({ HTMLAttributes }) {
-    return ['span', mergeAttributes({ class: 'variable-highlight' }, HTMLAttributes), 0];
+    const varName = HTMLAttributes['data-var'];
+    return [
+      'span', 
+      mergeAttributes({ class: 'variable-highlight', 'data-var': varName }, HTMLAttributes), 
+      `{{${varName}}}`
+    ];
   },
 
   addCommands() {
     return {
-      setVariableHighlight: () => ({ commands }) => {
-        return commands.setMark(this.name);
-      },
-      unsetVariableHighlight: () => ({ commands }) => {
-        return commands.unsetMark(this.name);
+      insertVariable: (key) => ({ commands }) => {
+        return commands.insertContent({
+          type: this.name,
+          attrs: { 'data-var': key },
+        });
       },
     };
   },
