@@ -2,7 +2,7 @@ import { cn } from '../../utils/cn';
 import { Loader2 } from 'lucide-react';
 
 const variants = {
-  primary:   'bg-[var(--accent-gold)] text-brand-navy-900 hover:brightness-110 shadow-gold active:scale-[0.98]',
+  primary:   'bg-[var(--accent-gold)] text-[#0B1629] hover:brightness-110 shadow-gold active:scale-[0.98]',
   secondary: 'bg-bg-secondary text-fg-primary border border-border-col hover:bg-bg-tertiary hover:border-[var(--border-strong)] shadow-card',
   ghost:     'text-fg-secondary hover:bg-bg-secondary hover:text-fg-primary',
   danger:    'bg-red-500 text-white hover:bg-red-600 shadow-sm',
