@@ -1,19 +1,17 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Bell, Search, Plus, LogOut, User, ChevronDown, Menu, Sun, Moon, Command } from 'lucide-react';
+import { Bell, Search, Plus, Menu, Sun, Moon } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Avatar } from '../ui/Avatar';
-import { Dropdown } from '../ui/Dropdown';
 import { Button } from '../ui/Button';
 import { useAuthStore } from '../../store/authStore';
 import { useUIStore } from '../../store/uiStore';
 import { cn } from '../../utils/cn';
 
 export function Topbar({ onOpenCommandPalette }) {
-  const { user, logout } = useAuthStore();
+  const { user } = useAuthStore();
   const { toggleMobileNav, theme, toggleTheme } = useUIStore();
   const navigate = useNavigate();
-  const [searchFocus, setSearchFocus] = useState(false);
   const isDark = theme === 'dark';
 
   // Cmd+K shortcut hint → open palette
@@ -27,17 +25,6 @@ export function Topbar({ onOpenCommandPalette }) {
     window.addEventListener('keydown', down);
     return () => window.removeEventListener('keydown', down);
   }, [onOpenCommandPalette]);
-
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
-
-  const userMenuItems = [
-    { label: 'Profile', icon: <User size={14} />, onClick: () => navigate('/settings') },
-    { divider: true },
-    { label: 'Log out', icon: <LogOut size={14} />, onClick: handleLogout, danger: true },
-  ];
 
   return (
     <header className="h-16 bg-bg-primary border-b border-border-col flex items-center justify-between px-4 lg:px-6 shrink-0 z-10">
@@ -159,25 +146,19 @@ export function Topbar({ onOpenCommandPalette }) {
           <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full" style={{ background: 'var(--accent-gold)' }} />
         </button>
 
-        {/* User menu */}
-        <Dropdown
-          align="right"
-          trigger={
-            <button
-              className="flex items-center gap-2 pl-2 pr-1 py-1 rounded-xl transition-colors"
-              style={{ background: '#172035', border: '0.5px solid #1E2D45' }}
-              onMouseEnter={e => e.currentTarget.style.borderColor='rgba(201,168,76,0.3)'}
-              onMouseLeave={e => e.currentTarget.style.borderColor='#1E2D45'}
-            >
-              <Avatar name={user?.name || user?.fullName || 'User'} src={user?.avatar} size="sm" />
-              <span className="hidden md:block text-sm font-medium max-w-[100px] truncate" style={{ color: '#EDF0F7' }}>
-                {user?.name || user?.fullName || 'User'}
-              </span>
-              <ChevronDown size={14} style={{ color: '#8896AD' }} />
-            </button>
-          }
-          items={userMenuItems}
-        />
+        {/* User avatar — goes to Settings */}
+        <button
+          onClick={() => navigate('/settings')}
+          className="flex items-center gap-2 pl-2 pr-3 py-1 rounded-xl transition-all duration-200 cursor-pointer"
+          style={{ background: '#172035', border: '0.5px solid #1E2D45' }}
+          onMouseEnter={e => e.currentTarget.style.borderColor='rgba(201,168,76,0.3)'}
+          onMouseLeave={e => e.currentTarget.style.borderColor='#1E2D45'}
+        >
+          <Avatar name={user?.name || user?.fullName || 'User'} src={user?.avatar} size="sm" />
+          <span className="hidden md:block text-sm font-medium max-w-[100px] truncate" style={{ color: '#EDF0F7' }}>
+            {user?.name || user?.fullName || 'User'}
+          </span>
+        </button>
       </div>
     </header>
   );
