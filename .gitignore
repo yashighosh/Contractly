@@ -19,3 +19,4 @@ build/
 
 # Local dev scripts — never commit
 generate_commits.ps1
+.env.example 
