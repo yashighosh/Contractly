@@ -11,9 +11,28 @@ const app = express();
 connectDB();
 
 // Middleware
+const allowedOrigins = [
+  process.env.FRONTEND_URL,
+  'https://contractlly.vercel.app',
+  'http://localhost:5173'
+].filter(Boolean) as string[];
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || 'http://localhost:5173',
-  credentials: true
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    const isAllowed = allowedOrigins.some(allowed => 
+      origin === allowed || origin === allowed.replace(/\/$/, '')
+    );
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      console.warn(`CORS blocked for origin: ${origin}`);
+      callback(null, false); // Return false instead of error to see if it helps preflight
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
