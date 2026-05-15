@@ -10,7 +10,8 @@ services:
     environment:
       - PORT=8082
       - MONGO_URI=mongodb://mongo:27017/contractly
-      - JWT_SECRET=contractly-super-secret-key-that-is-at-least-256-bits-long-for-hs256
+    env_file:
+      - .env
     depends_on:
       - mongo
     networks:
