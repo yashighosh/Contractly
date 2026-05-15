@@ -8,6 +8,7 @@ import Register    from '../pages/auth/Register';
 
 // App pages
 import Dashboard    from '../pages/Dashboard';
+import AgencyDashboard from '../pages/AgencyDashboard';
 import Contracts    from '../pages/Contracts';
 import ContractNew  from '../pages/ContractNew';
 import ContractEdit from '../pages/ContractEdit';
@@ -59,6 +60,11 @@ function NotFound() {
   );
 }
 
+function DashboardRouter() {
+  const user = useAuthStore((s) => s.user);
+  return user?.role === 'AGENCY' ? <AgencyDashboard /> : <Dashboard />;
+}
+
 // ── Router ────────────────────────────────────────────────
 
 export const router = createBrowserRouter([
@@ -79,7 +85,7 @@ export const router = createBrowserRouter([
   {
     element: <ProtectedRoute><AppShell /></ProtectedRoute>,
     children: [
-      { path: 'dashboard',           element: <Dashboard /> },
+      { path: 'dashboard',           element: <DashboardRouter /> },
       { path: 'contracts',           element: <Contracts /> },
       { path: 'contracts/new',       element: <ContractNew /> },
       { path: 'contracts/:id',       element: <ContractView /> },
