@@ -22,6 +22,7 @@ import { cn } from '../utils/cn';
 import { useAuthStore } from '../store/authStore';
 import { contractService } from '../services/contractService';
 import { useQueryClient } from '@tanstack/react-query';
+import { WatermarkOverlay } from '../components/ui/WatermarkOverlay';
 
 const pageVariants = { initial: { opacity: 0 }, animate: { opacity: 1, transition: { duration: 0.3, ease: 'easeOut' } } };
 
@@ -113,9 +114,12 @@ export default function ContractNew() {
   const [varValues, setVarValues] = useState({});
   const [showPreview, setShowPreview] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isOverLimit, setIsOverLimit] = useState(true); // SIMULATED: Always true for testing watermark logic
   const [savedStatus, setSavedStatus] = useState('');
   const [showOutline, setShowOutline] = useState(true);
   const [showVarsPanel, setShowVarsPanel] = useState(true);
+  const [logoUrl, setLogoUrl] = useState(null);
+  const hasPremiumBranding = user?.plan === 'PRO' || user?.plan === 'AGENCY';
 
   const editor = useEditor({
     extensions: [
@@ -132,6 +136,20 @@ export default function ContractNew() {
     },
   });
 
+  const handleLogoUpload = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) return toast.error('Logo must be under 2MB');
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const base64 = event.target.result;
+        setLogoUrl(base64);
+        toast.success('Logo uploaded! It will appear at the top of your contract.');
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSaveDraft = async () => {
     setIsSaving(true);
     const payload = {
@@ -140,6 +158,7 @@ export default function ContractNew() {
       recipientName: varValues.client_name || '',
       amount: varValues.amount ? Number(String(varValues.amount).replace(/[^0-9.]/g, '')) : null,
       variablesData: JSON.stringify(varValues),
+      logoUrl: logoUrl || '',
     };
 
     try {
@@ -165,9 +184,11 @@ export default function ContractNew() {
     const clauseHtml = `<h2 style="color: #1F2937; margin-top: 2.5rem; border-bottom: 1px solid #E5E7EB; padding-bottom: 0.5rem; font-family: 'Times New Roman', serif;">${cl.title}</h2><p style="font-size: 1.05rem; line-height: 1.7;">${cl.content}</p>`;
     
     let insertPos = editor.state.doc.content.size;
+    let found = false;
     editor.state.doc.content.forEach((node, offset) => {
-      if (node.textContent.includes('Client:') && node.textContent.includes('Contractor:')) {
+      if (!found && node.textContent.toLowerCase().includes('client:')) {
         insertPos = offset;
+        found = true;
       }
     });
     
@@ -237,6 +258,12 @@ export default function ContractNew() {
       content = content.replace(regex, `<span style="background-color: #FEF3C7; padding: 0 4px; border-radius: 4px; border-bottom: 1px solid #F59E0B; font-weight: 600; color: #92600A; font-size: 1rem;">${val}</span>`);
       content = content.replaceAll(`{{${key}}}`, `<span style="background-color: #FEF3C7; padding: 0 4px; border-radius: 4px; border-bottom: 1px solid #F59E0B; font-weight: 600; color: #92600A; font-size: 1rem;">${val}</span>`);
     });
+    if (isOverLimit) {
+      const watermarkHtml = `<div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.05; display: flex; flex-wrap: wrap; gap: 40px; justify-content: center; align-content: center; overflow: hidden; z-index: 1;">` +
+        Array.from({ length: 12 }).map(() => `<span style="font-size: 72px; font-weight: 900; color: #000; transform: rotate(-30deg); white-space: nowrap; margin: 60px;">CONTRACTLY</span>`).join('') +
+        `</div>`;
+      content = `<div style="position: relative;">${watermarkHtml}<div>${content}</div></div>`;
+    }
     return content;
   };
 
@@ -327,6 +354,50 @@ export default function ContractNew() {
                   <X size={16} />
                 </button>
               </div>
+
+              {/* Logo Section (Premium) */}
+              {hasPremiumBranding ? (
+                <div className="mb-8 px-5">
+                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <ShieldCheck size={14} className="text-[#C9A84C]" /> Contract Branding
+                  </h3>
+                  <div className="space-y-4">
+                    <label className="block">
+                      <div className="relative group cursor-pointer">
+                        <input 
+                          type="file" accept="image/png, image/svg+xml, image/jpeg" 
+                          onChange={handleLogoUpload}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                        />
+                        <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-700 rounded-xl group-hover:border-[#C9A84C] transition-colors bg-[#111C32]">
+                          {logoUrl ? (
+                            <div className="relative">
+                              <img src={logoUrl} alt="Logo" className="h-12 object-contain" />
+                              <div className="absolute -top-2 -right-2 bg-slate-800 text-white rounded-full p-1 shadow-lg" onClick={(e) => { e.stopPropagation(); setLogoUrl(null); }}>
+                                <X size={10} />
+                              </div>
+                            </div>
+                          ) : (
+                            <>
+                              <Plus size={20} className="text-slate-400 group-hover:text-[#C9A84C] mb-2" />
+                              <span className="text-xs text-slate-500 font-medium">Click to upload</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              ) : (
+                <div className="mb-8 mx-5 p-4 rounded-xl bg-[rgba(201,168,76,0.05)] border border-[rgba(201,168,76,0.2)]">
+                  <h3 className="text-xs font-bold text-[#C9A84C] uppercase tracking-wider mb-2 flex items-center gap-2">
+                    <Zap size={14} /> Unlock Branding
+                  </h3>
+                  <p className="text-[11px] text-slate-500 leading-relaxed mb-3">Upgrade to Pro or Agency to add your custom logo to every contract.</p>
+                  <button onClick={() => navigate('/settings?tab=billing')} className="w-full py-2 bg-[#C9A84C] text-[#0B1629] text-xs font-bold rounded-lg shadow-sm">Upgrade Now</button>
+                </div>
+              )}
+
               <div className="px-3 space-y-1">
                 {['Scope of Work', 'Compensation', 'Term and Timeline', 'Confidentiality', 'Termination'].map((c) => (
                   <button key={c}
@@ -423,8 +494,19 @@ export default function ContractNew() {
                 <div className="h-2.5 w-full bg-gradient-to-r from-[#D4AF37] via-[#F3E5AB] to-[#D4AF37]" />
                 
                 {/* Editor Content Area */}
-                <div className="p-12 lg:p-[4.5rem] contract-paper" style={editorStyles}>
-                  <EditorContent editor={editor} />
+                <div className="editor-container bg-white shadow-2xl rounded-sm mx-auto relative overflow-hidden" style={{ width: '100%', minHeight: '1056px', padding: '4.5rem' }}>
+                  {isOverLimit && <WatermarkOverlay />}
+                  
+                  {/* Dynamic Logo Header */}
+                  {logoUrl && (
+                    <div className="mb-8 flex justify-start">
+                      <img src={logoUrl} alt="Company Logo" className="max-h-16 max-w-[200px] object-contain" />
+                    </div>
+                  )}
+
+                  <div style={editorStyles}>
+                    <EditorContent editor={editor} />
+                  </div>
                 </div>
               </motion.div>
             )}

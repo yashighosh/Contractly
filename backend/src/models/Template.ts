@@ -7,6 +7,7 @@ export interface ITemplate extends Document {
   content?: string;
   variables?: any; // JSON array or object
   isPublic: boolean;
+  category: 'FREELANCER' | 'AGENCY';
   createdAt: Date;
   updatedAt: Date;
 }
@@ -19,6 +20,7 @@ const TemplateSchema: Schema = new Schema(
     content: { type: String },
     variables: { type: Schema.Types.Mixed },
     isPublic: { type: Boolean, default: false },
+    category: { type: String, enum: ['FREELANCER', 'AGENCY'], default: 'FREELANCER' },
   },
   { timestamps: true }
 );

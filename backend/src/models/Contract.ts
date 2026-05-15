@@ -26,6 +26,7 @@ export interface IContract extends Document {
   viewedAt?: Date;
   signedAt?: Date;
   expiredAt?: Date;
+  logoUrl?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -57,6 +58,7 @@ const ContractSchema: Schema = new Schema(
     viewedAt: { type: Date },
     signedAt: { type: Date },
     expiredAt: { type: Date },
+    logoUrl: { type: String },
   },
   { timestamps: true }
 );

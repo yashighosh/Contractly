@@ -21,6 +21,7 @@ import { cn } from '../utils/cn';
 import { useAuthStore } from '../store/authStore';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { contractService } from '../services/contractService';
+import { WatermarkOverlay } from '../components/ui/WatermarkOverlay';
 
 const pageVariants = { initial: { opacity: 0 }, animate: { opacity: 1, transition: { duration: 0.3, ease: 'easeOut' } } };
 
@@ -78,6 +79,7 @@ export default function ContractEdit() {
   const [savedStatus, setSaved]     = useState('');
   const [showVarsPanel, setVarsP]   = useState(true);
   const [showOutline, setShowOutline] = useState(true);
+  const [isOverLimit, setIsOverLimit] = useState(true); // SIMULATED
 
   const editor = useEditor({
     extensions: [
@@ -154,9 +156,11 @@ export default function ContractEdit() {
     const clauseHtml = `<h2 style="color: #1F2937; margin-top: 2.5rem; border-bottom: 1px solid #E5E7EB; padding-bottom: 0.5rem; font-family: 'Times New Roman', serif;">${cl.title}</h2><p style="font-size: 1.05rem; line-height: 1.7;">${cl.content}</p>`;
     
     let insertPos = editor.state.doc.content.size;
+    let found = false;
     editor.state.doc.content.forEach((node, offset) => {
-      if (node.textContent.includes('Client:') && node.textContent.includes('Contractor:')) {
+      if (!found && node.textContent.toLowerCase().includes('client:')) {
         insertPos = offset;
+        found = true;
       }
     });
     
@@ -213,6 +217,12 @@ export default function ContractEdit() {
       content = content.replace(regex, `<span style="background-color: #FEF3C7; padding: 0 4px; border-radius: 4px; border-bottom: 1px solid #F59E0B; font-weight: 600; color: #92600A; font-size: 1rem;">${val}</span>`);
       content = content.replaceAll(`{{${key}}}`, `<span style="background-color: #FEF3C7; padding: 0 4px; border-radius: 4px; border-bottom: 1px solid #F59E0B; font-weight: 600; color: #92600A; font-size: 1rem;">${val}</span>`);
     });
+    if (isOverLimit) {
+      const watermarkHtml = `<div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; opacity: 0.05; display: flex; flex-wrap: wrap; gap: 40px; justify-content: center; align-content: center; overflow: hidden; z-index: 1;">` +
+        Array.from({ length: 12 }).map(() => `<span style="font-size: 72px; font-weight: 900; color: #000; transform: rotate(-30deg); white-space: nowrap; margin: 60px;">CONTRACTLY</span>`).join('') +
+        `</div>`;
+      content = `<div style="position: relative;">${watermarkHtml}<div>${content}</div></div>`;
+    }
     return content;
   };
 
@@ -399,7 +409,8 @@ export default function ContractEdit() {
                 <div className="h-2.5 w-full bg-gradient-to-r from-[#D4AF37] via-[#F3E5AB] to-[#D4AF37]" />
                 
                 {/* Editor Content Area */}
-                <div className="p-12 lg:p-[4.5rem] contract-paper" style={editorStyles}>
+                <div className="p-12 lg:p-[4.5rem] contract-paper relative overflow-hidden" style={editorStyles}>
+                  {isOverLimit && <WatermarkOverlay />}
                   <EditorContent editor={editor} />
                 </div>
               </motion.div>
