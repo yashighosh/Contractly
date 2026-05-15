@@ -25,6 +25,7 @@ import signatureRoutes from './routes/signatureRoutes';
 import auditRoutes from './routes/auditRoutes';
 import adminRoutes from './routes/adminRoutes';
 import billingRoutes from './routes/billingRoutes';
+import paymentRoutes from './routes/paymentRoutes';
 import rateLimit from 'express-rate-limit';
 import * as Sentry from '@sentry/node';
 import { PostHog } from 'posthog-node';
@@ -56,6 +57,8 @@ app.use('/api/v1/sign', signatureRoutes);
 app.use('/api/v1/audit', auditRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/billing', billingRoutes);
+app.use('/api/v1/payments', paymentRoutes);
+app.get('/api/v1/payments-test', (req, res) => res.json({ message: 'payments path reachable' }));
 
 // Health check
 app.get('/api/health', (req, res) => {
