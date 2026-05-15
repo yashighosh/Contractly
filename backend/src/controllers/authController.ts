@@ -2,6 +2,9 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
+import crypto from 'crypto';
+import { PaymentService } from '../services/paymentService';
+import { AuditService } from '../services/auditService';
 
 const generateToken = (id: string, type: 'access' | 'refresh') => {
   const secret = process.env.JWT_SECRET || 'secret';
@@ -11,11 +14,32 @@ const generateToken = (id: string, type: 'access' | 'refresh') => {
 
 export const signup = async (req: Request, res: Response) => {
   try {
-    const { email, password, fullName, companyName } = req.body;
+    const { 
+      email, password, fullName, companyName, 
+      role, agencyWebsite, teamSize, location 
+    } = req.body;
 
     const userExists = await User.findOne({ email });
     if (userExists) {
       return res.status(400).json({ success: false, message: 'User already exists' });
+    }
+
+    // Razorpay verification for Agency
+    if (role === 'AGENCY') {
+      const { paymentResponse } = req.body;
+      if (!paymentResponse) {
+        return res.status(400).json({ success: false, message: 'Agency registration requires payment' });
+      }
+
+      const isVerified = PaymentService.verifySignature(
+        paymentResponse.razorpay_order_id,
+        paymentResponse.razorpay_payment_id,
+        paymentResponse.razorpay_signature
+      );
+
+      if (!isVerified) {
+        return res.status(400).json({ success: false, message: 'Payment verification failed' });
+      }
     }
 
     const salt = await bcrypt.genSalt(10);
@@ -26,7 +50,16 @@ export const signup = async (req: Request, res: Response) => {
       passwordHash,
       fullName,
       companyName,
+      role: role || 'USER',
+      plan: role === 'AGENCY' ? 'AGENCY' : 'FREE',
+      agencyWebsite,
+      teamSize,
+      location,
     });
+
+    if (role === 'AGENCY') {
+      await AuditService.log(user._id.toString(), 'AGENCY_REGISTRATION_PAYMENT', 'Agency account created with verified payment', req.ip);
+    }
 
     const accessToken = generateToken(user._id.toString(), 'access');
     const refreshToken = generateToken(user._id.toString(), 'refresh');
@@ -64,6 +97,15 @@ export const login = async (req: Request, res: Response) => {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }
 
+    if (user.role === 'AGENCY' && user.activeSessions.length >= 5) {
+      return res.status(403).json({ 
+        success: false, 
+        message: 'Maximum device limit reached. Please contact helpdesk to increase your limit.' 
+      });
+    }
+
+    const sessionId = crypto.randomUUID();
+    user.activeSessions.push(sessionId);
     user.lastLogin = new Date();
     await user.save();
 
@@ -76,6 +118,7 @@ export const login = async (req: Request, res: Response) => {
       data: {
         accessToken,
         refreshToken,
+        sessionId, // Send this back so client can send it in logout
         user: {
           id: user._id,
           email: user.email,
@@ -133,6 +176,16 @@ export const me = async (req: any, res: Response) => {
   }
 };
 
-export const logout = async (req: Request, res: Response) => {
-  res.json({ success: true, message: 'Logged out successfully' });
+export const logout = async (req: any, res: Response) => {
+  try {
+    const { sessionId } = req.body;
+    const user = await User.findById(req.user?._id);
+    if (user && sessionId) {
+      user.activeSessions = user.activeSessions.filter(id => id !== sessionId);
+      await user.save();
+    }
+    res.json({ success: true, message: 'Logged out successfully' });
+  } catch (error) {
+    res.json({ success: true, message: 'Logged out successfully' });
+  }
 };

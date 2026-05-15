@@ -7,6 +7,7 @@ export const useAuthStore = create(
     (set, get) => ({
       user:            null,
       token:           null,
+      sessionId:       null,
       isAuthenticated: false,
 
       /* ── loginWithDemo removed ── */
@@ -14,19 +15,15 @@ export const useAuthStore = create(
         throw new Error('Demo login is no longer available');
       },
 
-      /* ── register({ name, email, password, companyName }) ── */
-      register: async ({ name, email, password, companyName }) => {
-        if (!name?.trim())  throw new Error('Full name is required');
-        if (!email?.trim()) throw new Error('Email is required');
-        if (!password || password.length < 8) throw new Error('Password must be at least 8 characters');
+      /* ── signup(formData) ── */
+      signup: async (formData) => {
+        const { fullName, email, password } = formData;
+        if (!fullName?.trim())  throw new Error('Full name is required');
+        if (!email?.trim())     throw new Error('Email is required');
+        if (!password || password.length < 6) throw new Error('Password must be at least 6 characters');
 
-        const data = await authService.register({
-          fullName: name.trim(),
-          email: email.trim().toLowerCase(),
-          password,
-          companyName,
-        });
-        set({ user: data.user, token: data.accessToken, isAuthenticated: true });
+        const data = await authService.register(formData);
+        set({ user: data.user, token: data.accessToken, sessionId: data.sessionId, isAuthenticated: true });
       },
 
       /* ── login({ email, password }) ── */
@@ -38,13 +35,29 @@ export const useAuthStore = create(
           email: email.trim().toLowerCase(),
           password,
         });
-        set({ user: data.user, token: data.accessToken, isAuthenticated: true });
+        set({ user: data.user, token: data.accessToken, sessionId: data.sessionId, isAuthenticated: true });
       },
 
       /* ── logout ── */
       logout: () => {
-        authService.logout().catch(() => {});
-        set({ token: null, user: null, isAuthenticated: false });
+        const { sessionId, token } = get();
+        console.log('Logging out with sessionId:', sessionId);
+        
+        // Only call backend if we have a token/session
+        if (token) {
+          authService.logout(sessionId).catch(err => console.error('Logout service error:', err));
+        }
+        
+        // Clear everything locally regardless of backend success
+        set({ 
+          token: null, 
+          user: null, 
+          sessionId: null, 
+          isAuthenticated: false 
+        });
+        
+        // Clear local storage explicitly to be safe
+        localStorage.removeItem('auth-storage');
       },
 
       /* ── updateUser ── */
@@ -59,6 +72,7 @@ export const useAuthStore = create(
       version: 2,
       partialize: (state) => ({
         token:           state.token,
+        sessionId:       state.sessionId,
         user:            state.user,
         isAuthenticated: state.isAuthenticated,
       }),
