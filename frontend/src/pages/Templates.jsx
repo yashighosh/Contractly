@@ -9,6 +9,7 @@ import { EmptyState } from '../components/ui/EmptyState';
 import { cn } from '../utils/cn';
 import { useQuery } from '@tanstack/react-query';
 import { templateService } from '../services/templateService';
+import { useAuthStore } from '../store/authStore';
 
 const TABS = ['All', 'My Templates', 'Contractly Templates'];
 
@@ -24,6 +25,7 @@ const MOCK_TEMPLATES = [
 
 
 export default function Templates() {
+  const { user } = useAuthStore();
   const navigate = useNavigate();
   const [tab, setTab]     = useState('All');
   const [search, setSearch] = useState('');
@@ -36,6 +38,13 @@ export default function Templates() {
   const allTemplates = [...templates, ...MOCK_TEMPLATES];
 
   const filtered = allTemplates.filter((t) => {
+    const isAgencyUser = user?.role === 'AGENCY';
+    const templateCategory = t.category || (t.type === 'system' ? (isAgencyUser ? 'AGENCY' : 'FREELANCER') : 'FREELANCER');
+    
+    // Filter by category: Agencies see Agency templates, Freelancers see Freelancer templates
+    if (isAgencyUser && templateCategory !== 'AGENCY') return false;
+    if (!isAgencyUser && templateCategory !== 'FREELANCER') return false;
+
     const matchTab =
       tab === 'All'                  ? true :
       tab === 'My Templates'         ? t.type === 'my' :

@@ -22,7 +22,22 @@ export function AppShell() {
       if (e.key === 'Escape') setPaletteOpen(false);
     };
     window.addEventListener('keydown', down);
-    return () => window.removeEventListener('keydown', down);
+
+    // Prevent Right Click
+    const handleContextMenu = (e) => e.preventDefault();
+    document.addEventListener('contextmenu', handleContextMenu);
+
+    // Prevent Copy
+    const handleCopy = (e) => {
+      e.preventDefault();
+    };
+    document.addEventListener('copy', handleCopy);
+
+    return () => {
+      window.removeEventListener('keydown', down);
+      document.removeEventListener('contextmenu', handleContextMenu);
+      document.removeEventListener('copy', handleCopy);
+    };
   }, []);
 
   return (

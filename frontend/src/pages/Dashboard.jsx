@@ -160,6 +160,7 @@ export default function Dashboard() {
   const hour     = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
   const firstName = (user?.name || user?.fullName)?.split(' ')[0] || 'there';
+  const isAgency = user?.role === 'AGENCY';
 
   /* ── Derived stats ── */
   const active   = contracts.filter((c) => c.status === 'signed' || c.status === 'sent' || c.status === 'viewed').length;
@@ -195,10 +196,13 @@ export default function Dashboard() {
               <h1 className="text-3xl font-bold text-fg-primary tracking-tight flex items-center gap-2 mb-1">
                 {greeting},{' '}
                 <span style={{ fontFamily: 'var(--font-serif)', color: 'var(--accent-gold)' }}>{firstName}</span> 
+                {isAgency && <span className="ml-2 text-sm font-bold px-2 py-0.5 rounded bg-[var(--accent-gold)] text-[#0B1629] align-middle">AGENCY</span>}
                 <motion.span animate={{ rotate: [0, 14, -8, 14, -4, 10, 0, 0] }} transition={{ duration: 2, repeat: Infinity, repeatDelay: 2 }} style={{ display: 'inline-block', transformOrigin: 'bottom right' }}>👋</motion.span>
               </h1>
               <p className="text-[15px] font-medium text-fg-secondary mt-1 flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[var(--accent-gold)] animate-pulse" />
+                {isAgency ? `${user.companyName || 'Agency'} Dashboard` : 'Freelancer Workspace'}
+                <span className="opacity-40 px-1">•</span>
                 {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
                 {contracts.length > 0 && <span className="opacity-40 px-1">•</span>}
                 {contracts.length > 0 && <span>{contracts.length} contract{contracts.length !== 1 ? 's' : ''} total</span>}
@@ -241,9 +245,9 @@ export default function Dashboard() {
                 {/* Stats */}
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
                   <StatCard label="Active Contracts" value={active}   icon={FileText}    trend={`${contracts.length} total`} up={active > 0}  delay={0} />
-                  <StatCard label="Revenue Locked"   value={revenue}  icon={IndianRupee} trend="from signed"                 up={revenue > 0} delay={1} />
+                  <StatCard label={isAgency ? "Agency Revenue" : "Revenue Locked"} value={revenue}  icon={IndianRupee} trend="from signed"                 up={revenue > 0} delay={1} />
                   <StatCard label="Awaiting Sign"    value={awaiting} icon={PenLine}     trend="sent/viewed"                 up={false}       delay={2} />
-                  <StatCard label="Drafts"           value={drafts.length} icon={Clock}  trend="not sent yet"                up={false}       delay={3} />
+                  <StatCard label={isAgency ? "Team Drafts" : "My Drafts"} value={drafts.length} icon={Clock}  trend="not sent yet"                up={false}       delay={3} />
                 </div>
 
                 <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-8">
@@ -316,9 +320,9 @@ export default function Dashboard() {
                   <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }} className="bg-bg-primary rounded-2xl border border-border-col overflow-hidden shadow-sm h-fit">
                     <div className="px-6 py-5 border-b border-border-col flex items-center gap-2.5 bg-[rgba(255,255,255,0.01)]">
                       <div className="p-1.5 rounded-lg bg-[rgba(201,168,76,0.1)]">
-                        <Activity size={16} className="text-[var(--accent-gold)]" />
+                        {isAgency ? <Users size={16} className="text-[var(--accent-gold)]" /> : <Activity size={16} className="text-[var(--accent-gold)]" />}
                       </div>
-                      <h3 className="font-bold text-fg-primary text-base">Recent Activity</h3>
+                      <h3 className="font-bold text-fg-primary text-base">{isAgency ? 'Team Activity' : 'Recent Activity'}</h3>
                     </div>
                     <div className="p-6">
                       {activity.length === 0 ? (
